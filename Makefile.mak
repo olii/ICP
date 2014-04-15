@@ -1,4 +1,5 @@
-FLAGS = -std=c++11 -pedantic -Wall -Wextra -O2 -static-libstdc++ -pthread
+FLAGS = -std=c++11 -pedantic -Wall -Wextra 
+#-O2 -static-libstdc++ -pthread
 CXX = g++-4.8
 .PHONY=clean blackhole
 

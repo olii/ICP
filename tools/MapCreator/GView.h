@@ -4,10 +4,9 @@
 #include <QGraphicsView>
 #include <QPixmap>
 #include <QVector>
-
-const QString stena_base = "://cervena.png";
-const QString podlaha_base = "://33usewk.png";
-const QString kluc_base = "://kluc2.png";
+const QString stena_base = "://resources/cervena.png";
+const QString podlaha_base = "://resources/33usewk.png";
+const QString kluc_base = "://resources/kluc2.png";
 
 struct vecStruct{
     QGraphicsPixmapItem* ptr;

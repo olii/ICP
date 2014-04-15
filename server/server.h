@@ -1,6 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
-#include "../boost/asio.hpp"
+#include "boost/asio.hpp"
 
 /*zamedzi warningu unused variable*/
 #define UNUSED(x) ((void)x)

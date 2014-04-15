@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>brixbug.png</file>
+        <file>podlaha.png</file>
+        <file>cervena.png</file>
+        <file>33usewk.png</file>
+        <file>kluc.png</file>
+        <file>kluc2.png</file>
+    </qresource>
+</RCC>

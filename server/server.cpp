@@ -4,8 +4,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
-
-int player::index = 0;
+#include "player.h"
 
 server::server( boost::asio::io_service& io_service, const tcp::endpoint& endpoint ):
     io_service_( io_service ), acceptor_(io_service, endpoint)
@@ -32,6 +31,3 @@ void server::handle_accept(boost::shared_ptr<player> sharedPtr,
 
   start_accept();
 }
-
-/*************************************************/
-std::vector<boost::shared_ptr<player>> SKLAD;

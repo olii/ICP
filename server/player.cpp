@@ -18,10 +18,11 @@ using std::cout;
 using std::endl;
 
 
+
 uint32_t player::index = 0;
 
 
-player::player(boost::asio::io_service& io_service): socket_(io_service) ,buff (std::string( "ICP server v0.1\r\n") )
+player::player(boost::asio::io_service& io_service): socket_(io_service) ,buff (std::string( "ICP server v0.1\r\n"), Message::MessageType::HELLO )
 {
     timer = new boost::asio::deadline_timer(io_service, boost::posix_time::seconds(2));
     index_ = index++;

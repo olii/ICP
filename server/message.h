@@ -10,11 +10,13 @@
 class Message
 {
 public:
+    enum MessageType{ HELLO=1, JOIN, LEAVE, COMMAND, GAME_STATE, MAP, MESSAGE, SERVER_LIST, CREATE_SERVER };
+
     Message();
     Message( const Message& );
-    Message(std::string &str, uint32_t type = 65 );
+    Message(std::string &str, MessageType type );
 
-    Message( std::string &&str, uint32_t type = 65 );
+    Message( std::string &&str, MessageType type );
 
     void setMessage(std::vector<char> &tmp)
     {
@@ -23,12 +25,12 @@ public:
 
     void setString( std::string &&str )
     {
-        *this = Message( str );
+        *this = Message( str, this->GetMessageType() );
     }
 
     void setString( std::string &str )
     {
-        *this = Message( str );
+        *this = Message( str, this->GetMessageType() );
     }
     std::vector<char>& getMessage(  )
     {
@@ -101,7 +103,10 @@ public:
         }
         std::cout << std::dec << std::endl;
     }
-
+    MessageType GetMessageType()
+    {
+        return (MessageType)*( reinterpret_cast< uint32_t* >( buffer.data() ) );
+    }
 
 private:
     std::vector<char> buffer;

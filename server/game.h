@@ -10,6 +10,8 @@
 
 
 
+
+extern boost::asio::io_service io_service;
 class player;
 
 class Game: public boost::enable_shared_from_this<Game>
@@ -25,16 +27,19 @@ public:
     uint32_t GetIndex();
     void Shutdown();
 
+    void Start();
+    void GameLoop(const boost::system::error_code& error);
+
     static uint32_t index;
 private:
     uint32_t index_;
     std::set<boost::shared_ptr<player>> players;
     uint maxPlayers;
-    //std::forward_list< std::pair< boost::shared_ptr<player>, Message>  > messageQue;
     std::list< std::pair< boost::shared_ptr<player>, Message>  > messageQue;
     //int minForPlay;
 
     void RemovePlayerMessage(boost::shared_ptr<player> user);
+    boost::asio::deadline_timer timer;
 };
 
 

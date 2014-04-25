@@ -14,7 +14,7 @@ Message::Message(const Message &old)
     this->buffer = old.buffer;
 }
 
-Message::Message( std::string &str, uint32_t type )
+Message::Message( std::string &str, MessageType type )
 {
     buffer.resize(str.length() + header_size );
     setSize(str.length());
@@ -22,7 +22,7 @@ Message::Message( std::string &str, uint32_t type )
     setType(type);
 }
 
-Message::Message(std::string &&str, uint32_t type )
+Message::Message(std::string &&str, MessageType type )
 {
     buffer.resize(str.length() + header_size);
     setSize(str.length());

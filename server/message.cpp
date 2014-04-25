@@ -6,21 +6,21 @@
 
 Message::Message()
 {
-    buffer.resize(128);
+    buffer.resize( 128 );
 }
 
-Message::Message( std::string &str )
+Message::Message( std::string &str, uint32_t type )
+{
+    buffer.resize(str.length() + header_size );
+    setSize(str.length());
+    std::copy( str.begin(), str.end(), back_inserter(buffer) );
+    setType(type);
+}
+
+Message::Message(std::string &&str, uint32_t type )
 {
     buffer.resize(str.length() + header_size);
     setSize(str.length());
     std::copy( str.begin(), str.end(), back_inserter(buffer) );
-    setType(65);
-}
-
-Message::Message(std::string &&str )
-{
-    buffer.resize(str.length() + header_size);
-    setSize(str.length());
-    std::copy( str.begin(), str.end(), back_inserter(buffer) );
-    setType(65);
+    setType(type);
 }

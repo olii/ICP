@@ -4,15 +4,16 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <iostream>
 
 
 class Message
 {
 public:
     Message();
-    Message(std::string &str );
+    Message(std::string &str, uint32_t type = 65 );
 
-    Message( std::string &&str );
+    Message( std::string &&str, uint32_t type = 65 );
 
     void setMessage(std::vector<char> &tmp)
     {
@@ -33,9 +34,9 @@ public:
         return buffer;
     }
 
-    void resize( unsigned int size )
+    void resizePayload( unsigned int size )
     {
-        buffer.resize(size);
+        buffer.resize( size + header_size );
     }
 
     void * getHeaderPtr()
@@ -51,17 +52,17 @@ public:
 
     uint32_t getType()
     {
-        return *( reinterpret_cast< int32_t* >( buffer.data() ) );
+        return *( reinterpret_cast< uint32_t* >( buffer.data() ) );
     }
 
     uint32_t getSize()
     {
-        return *( reinterpret_cast< int32_t* >( buffer.data() + sizeof( uint32_t ) ) );
+        return *( reinterpret_cast< int32_t* >( buffer.data() ) +1 );
     }
 
     void setSize( uint32_t size )
     {
-        *( reinterpret_cast< int32_t* >( buffer.data() + sizeof( uint32_t ) ) ) = size;
+        *( reinterpret_cast< int32_t* >( buffer.data() ) + 1 ) = size;
     }
 
     void setType( uint32_t type )
@@ -80,9 +81,24 @@ public:
         return *this;
     }
 
-    int getHeaderSize()
+    uint32_t getHeaderSize()
     {
         return header_size;
+    }
+
+    std::string to_str()
+    {
+        return std::string( reinterpret_cast<char*>(getPayLoadPtr()), getSize() );
+    }
+
+    void dump()
+    {
+        uint8_t *ptr = reinterpret_cast<uint8_t*>(buffer.data());
+        for( int i = 0; i<8; ++i )
+        {
+            std::cout << std::hex << int(ptr[i])  << " ";
+        }
+        std::cout << std::dec << std::endl;
     }
 
 

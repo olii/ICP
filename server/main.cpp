@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iostream>
 #include <csignal>
+#include "manager.h"
 
 using std::cout;
 using std::cerr;
@@ -20,7 +21,6 @@ static void sighandler(int signum)
 
 int main(int argc, char *argv[])
 {
-    
     if (  argc != 2)
     {
         cout << "USAGE ./server [port]" << endl;
@@ -28,8 +28,9 @@ int main(int argc, char *argv[])
     }
 
     tcp::endpoint endpoint(tcp::v4(), atoi(argv[1]));
-
     server labyrint( io_service, endpoint );
+
+    Manager::instance().CreateGame();
 
     signal(SIGINT, sighandler);
     io_service.run();

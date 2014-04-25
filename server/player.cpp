@@ -51,11 +51,10 @@ void player::start()
         return;
     }
     game->Join( shared_from_this() );
+
     cout << "Player [" << index_ << "] starting routine" << endl;
-    //SKLAD[index_] = shared_from_this();
-    boost::system::error_code error;
 
-
+    //boost::system::error_code error;
     /* posle sa hello sprava */
     boost::asio::async_write( socket_, boost::asio::buffer(buff.getMessage() ),
         boost::bind( &player::listen, shared_from_this(), boost::asio::placeholders::error ) );
@@ -66,6 +65,11 @@ void player::start()
 uint32_t player::GetIndex()
 {
     return index_;
+}
+
+void player::LeaveServerRequest()
+{
+    game.reset();
 }
 
 
@@ -80,7 +84,6 @@ void player::listen( const boost::system::error_code& error )
         {
             game->Leave( shared_from_this() );
         }
-        //SKLAD.erase(index_);
         return;
     }
 
@@ -95,7 +98,6 @@ void player::do_write( const boost::system::error_code& error )
         cout << "Error : [" << index_ << "]" << "player::do_write " << error << endl;
         if (shutdown) return;
         shutdown = true;
-        //SKLAD.erase(index_);
         return;
     }
 
@@ -117,7 +119,6 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
     {
         cout << "Error : [" << index_ << "]" << "player::handle_header " << error << endl;
         if (shutdown) return;
-        //SKLAD.erase(index_);
         shutdown = true;
         if (game->Joined( shared_from_this() ) )
         {
@@ -128,7 +129,7 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
 
     cout << "Player [" << index_ << "] received header with payload size "<< buff.getSize() << endl;
     cout << "read " << bytes_transferred << "bytes" <<endl;
-    buff.dump();
+    //buff.dump();
 
     if ( buff.getSize() > 0 )
     {
@@ -157,6 +158,7 @@ void player::handle_payload( const boost::system::error_code& error, std::size_t
 
     cout << ">>>>>>>" << buff.to_str() ;
     cout << "<<<<<<<" << endl;
+    game->GameMessage(shared_from_this(), buff);
     do_read();
 }
 

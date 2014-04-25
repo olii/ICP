@@ -9,6 +9,11 @@ Message::Message()
     buffer.resize( 128 );
 }
 
+Message::Message(const Message &old)
+{
+    this->buffer = old.buffer;
+}
+
 Message::Message( std::string &str, uint32_t type )
 {
     buffer.resize(str.length() + header_size );

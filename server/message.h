@@ -11,6 +11,7 @@ class Message
 {
 public:
     Message();
+    Message( const Message& );
     Message(std::string &str, uint32_t type = 65 );
 
     Message( std::string &&str, uint32_t type = 65 );

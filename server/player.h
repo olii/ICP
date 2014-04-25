@@ -32,7 +32,8 @@ public:
     ~player();
     void start();
     uint32_t GetIndex();
-    
+    void LeaveServerRequest();
+
     static uint32_t index;
     tcp::socket socket_;
     

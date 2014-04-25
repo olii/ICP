@@ -40,6 +40,15 @@ void Manager::DestroyGame(boost::shared_ptr<Game> game)
     cout << "Manager: games = " << database.size() <<endl;
 }
 
+void Manager::Shutdown()
+{
+    for ( auto x: database )
+    {
+        x.second->Shutdown();
+    }
+    database.clear();
+}
+
 void Manager::AddGame(boost::shared_ptr<Game> newgame)
 {
     database[newgame->GetIndex()] = newgame;

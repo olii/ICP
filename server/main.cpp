@@ -17,6 +17,7 @@ static void sighandler(int signum)
     (void)signum;
     io_service.reset();
     io_service.stop();
+    Manager::instance().Shutdown();
 }
 
 int main(int argc, char *argv[])

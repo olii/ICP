@@ -24,6 +24,7 @@ public:
    boost::shared_ptr<Game> GetJoinableGame();
    void ServerList();
    void DestroyGame(boost::shared_ptr< Game > game);
+   void Shutdown();
 
 
 private:

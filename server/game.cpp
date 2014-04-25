@@ -3,6 +3,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <set>
+#include <utility>
 
 using std::set;
 
@@ -18,7 +19,9 @@ Game::Game():index_( Game::index++ )
 
 Game::~Game()
 {
-    std::cout << "Game [" << index_ <<"] destructed" << std::endl;
+    players.clear();
+    messageQue.clear();
+    std::cout << "Game [" << index_ <<"] destructed, message que="<< messageQue.size() << std::endl;
 }
 
 bool Game::Join( boost::shared_ptr<player> user )
@@ -37,16 +40,24 @@ void Game::Leave( boost::shared_ptr<player> user )
 {
     std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] leaving the game." << std::endl;
     players.erase( user );
+    RemovePlayerMessage( user );
     if ( players.empty() )
     {
         std::cout << "Game [" << index_ <<"]: is empty." << std::endl;
         Manager::instance().DestroyGame(shared_from_this());
     }
+
 }
 
 bool Game::Joined( boost::shared_ptr<player> user )
 {
     return (players.find(user) != players.end());
+}
+
+void Game::GameMessage(boost::shared_ptr<player> user, Message message)
+{
+    RemovePlayerMessage(user);
+    messageQue.emplace_back( user, message );
 }
 
 bool Game::Full()
@@ -58,4 +69,22 @@ bool Game::Full()
 uint32_t Game::GetIndex()
 {
     return index_;
+}
+
+void Game::Shutdown()
+{
+    for( auto x: players )
+    {
+        x->LeaveServerRequest();
+    }
+    players.clear();
+    messageQue.clear();
+}
+
+void Game::RemovePlayerMessage(boost::shared_ptr<player> user)
+{
+    messageQue.remove_if([&user](std::pair< boost::shared_ptr<player>, Message> &x)
+    {
+        return x.first == user;
+    });
 }

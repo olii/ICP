@@ -33,6 +33,7 @@ public:
     void start();
     uint32_t GetIndex();
     void LeaveServerRequest();
+    void SendString( std::string str);
 
     static uint32_t index;
     tcp::socket socket_;

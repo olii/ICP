@@ -25,8 +25,15 @@ server/manager.o: server/manager.cpp server/manager.h
 
 server/game.o: server/game.cpp server/game.h
 	$(CXX) $(FLAGS) -c server/game.cpp -o server/game.o
-
+    
+    
+    
+client-bin: client/main.o
+	$(CXX) $(FLAGS) client/main.o -o client-bin
+    
+client/main.o: client/main.cpp
+	$(CXX) $(FLAGS) -c client/main.cpp -o client/main.o
 clean: 
-	rm server-bin server/*.o
+	rm server-bin server/*.o client-bin client/*.o
 blackhole:
 	

@@ -33,6 +33,10 @@ bool Game::Join( boost::shared_ptr<player> user )
         return false;
     }
     players.insert(user);
+    if ( Full() )
+    {
+        Start();
+    }
     std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game." << std::endl;
     return true;
 }
@@ -102,8 +106,17 @@ void Game::GameLoop(const boost::system::error_code &error)
         std::cout << "Game [" << index_ <<"]: timer error " << error << std::endl;
     }
     std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
+    Dispatch();
     timer.expires_from_now(boost::posix_time::seconds(1));
     timer.async_wait( boost::bind( &Game::GameLoop, shared_from_this(), boost::asio::placeholders::error ) );
+}
+
+void Game::Dispatch()
+{
+    for( auto x: players )
+    {
+        x->SendString( "This is Tick-Tock\r\n" );
+    }
 }
 
 void Game::RemovePlayerMessage(boost::shared_ptr<player> user)

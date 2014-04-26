@@ -73,6 +73,13 @@ void player::LeaveServerRequest()
     game.reset();
 }
 
+void player::SendString(std::string str)
+{
+    Message buff(str, Message::MessageType::MESSAGE);
+    boost::asio::async_write( socket_, boost::asio::buffer(buff.getMessage() ),
+        boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+}
+
 
 void player::listen( const boost::system::error_code& error )
 {
@@ -181,8 +188,8 @@ void player::handle_write(const boost::system::error_code& error)
     }
     cout << "Player [" << index_ << "] message sent" << endl;
 
-    timer->expires_from_now(boost::posix_time::seconds(1));
-    timer->async_wait( boost::bind( &player::do_write, shared_from_this(), boost::asio::placeholders::error ) );
+    //timer->expires_from_now(boost::posix_time::seconds(1));
+    //timer->async_wait( boost::bind( &player::do_write, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
 

@@ -37,6 +37,7 @@ private:
     uint maxPlayers;
     std::list< std::pair< boost::shared_ptr<player>, Message>  > messageQue;
     //int minForPlay;
+    void Dispatch();
 
     void RemovePlayerMessage(boost::shared_ptr<player> user);
     boost::asio::deadline_timer timer;

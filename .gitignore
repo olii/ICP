@@ -20,4 +20,4 @@
 *.out
 *.app
 
-boost/
+icp-proj.*

@@ -5,8 +5,9 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <list>
 #include <utility>
+#include <string>
 #include "player.h"
-#include "message.h"
+#include "../shared/command.h"
 
 
 
@@ -17,29 +18,34 @@ class player;
 class Game: public boost::enable_shared_from_this<Game>
 {
 public:
-    Game();
+    Game(std::string name, int max );
     ~Game();
     bool Join( boost::shared_ptr<player> user );
     void Leave( boost::shared_ptr<player> user );
     bool Joined( boost::shared_ptr<player> user );
-    void GameMessage(boost::shared_ptr<player> user, Message message);
+    void GameMessage(boost::shared_ptr<player> user, Command);
     bool Full();
-    uint32_t GetIndex();
     void Shutdown();
 
     void Start();
     void GameLoop(const boost::system::error_code& error);
 
+    uint32_t GetIndex();
+    std::string GetName();
+    int GetPlayerCount();
+    int GetMaxPlayers();
+
     static uint32_t index;
 private:
+    void Dispatch();
+    void RemovePlayerMessage(boost::shared_ptr<player> user);
+
     uint32_t index_;
+    std::string name;
     std::set<boost::shared_ptr<player>> players;
     uint maxPlayers;
-    std::list< std::pair< boost::shared_ptr<player>, Message>  > messageQue;
-    //int minForPlay;
-    void Dispatch();
 
-    void RemovePlayerMessage(boost::shared_ptr<player> user);
+    std::list< std::pair< boost::shared_ptr<player>, Command>  > messageQue;
     boost::asio::deadline_timer timer;
 };
 

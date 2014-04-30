@@ -27,9 +27,20 @@ boost::shared_ptr<Game> Manager::GetJoinableGame()
     return boost::shared_ptr<Game>();
 }
 
-boost::shared_ptr< Game > Manager::CreateGame()
+ServerInfoList Manager::ServerList()
 {
-    boost::shared_ptr< Game > ptr ( new Game() );
+    ServerInfoList l;
+    for ( auto x: database )
+    {
+        ServerInfo tmp(x.second->GetIndex(), x.second->GetName(), x.second->GetPlayerCount(),x.second->GetMaxPlayers(), std::string("Dummy Map") );
+        l.list.push_back(tmp);
+    }
+    return l;
+}
+
+boost::shared_ptr< Game > Manager::CreateGame(std::string name, int max)
+{
+    boost::shared_ptr< Game > ptr ( new Game(name, max) );
     AddGame(ptr);
     return ptr;
 }

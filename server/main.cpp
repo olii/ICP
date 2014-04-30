@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     tcp::endpoint endpoint(tcp::v4(), atoi(argv[1]));
     server labyrint( io_service, endpoint );
 
-    Manager::instance().CreateGame();
+    //Manager::instance().CreateGame();
 
     signal(SIGINT, sighandler);
     io_service.run();

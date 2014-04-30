@@ -11,10 +11,10 @@ using std::set;
 uint32_t Game::index = 0;
 
 
-Game::Game():index_( Game::index++ ), timer(io_service)
+Game::Game(std::string name, int max ):index_( Game::index++ ), maxPlayers(max), timer(io_service)
 {
-    maxPlayers = 4;
-    std::cout << "Game [" << index_ <<"] constructed" << std::endl;
+    this->name = name;
+    std::cout << "Game [" << index_ << "  " << this->name << "] constructed" << std::endl;
 }
 
 Game::~Game()
@@ -60,10 +60,10 @@ bool Game::Joined( boost::shared_ptr<player> user )
     return (players.find(user) != players.end());
 }
 
-void Game::GameMessage(boost::shared_ptr<player> user, Message message)
+void Game::GameMessage(boost::shared_ptr<player> user, Command c)
 {
     RemovePlayerMessage(user);
-    messageQue.emplace_back( user, message );
+    messageQue.emplace_back( user, c );
 }
 
 bool Game::Full()
@@ -75,6 +75,21 @@ bool Game::Full()
 uint32_t Game::GetIndex()
 {
     return index_;
+}
+
+std::string Game::GetName()
+{
+    return name;
+}
+
+int Game::GetPlayerCount()
+{
+    return players.size();
+}
+
+int Game::GetMaxPlayers()
+{
+    return maxPlayers;
 }
 
 void Game::Shutdown()
@@ -121,7 +136,7 @@ void Game::Dispatch()
 
 void Game::RemovePlayerMessage(boost::shared_ptr<player> user)
 {
-    messageQue.remove_if([&user](std::pair< boost::shared_ptr<player>, Message> &x)
+    messageQue.remove_if([&user](std::pair< boost::shared_ptr<player>, Command> &x)
     {
         return x.first == user;
     });

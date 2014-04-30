@@ -8,8 +8,8 @@
 #include <vector>
 #include <map>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "message.h"
 #include "game.h"
+#include "../shared/serverinfo.h"
 
 
 
@@ -20,7 +20,6 @@ using std::endl;
 
 class player;
 class Game;
-extern std::map<int, boost::shared_ptr<player>> SKLAD;
 
 
 
@@ -30,21 +29,27 @@ class player: public boost::enable_shared_from_this<player>
 public:
     player(boost::asio::io_service& io_service);
     ~player();
+
     void start();
-    uint32_t GetIndex();
     void LeaveServerRequest();
     void SendString( std::string str);
 
-    static uint32_t index;
+    uint32_t GetIndex();
+
     tcp::socket socket_;
-    
+
+    static uint32_t index;
 private:
     uint32_t index_;
     bool shutdown = false;
-    Message buff;
-    boost::asio::deadline_timer *timer;
     boost::shared_ptr < Game > game;
 
+    uint32_t outheader[2];
+    uint32_t inheader[2];
+    std::string outdata;
+    std::vector<char> indata;
+
+    //bool ProcessSimpleCommand(Co);
 
     void listen(const boost::system::error_code &error);
     void do_write( const boost::system::error_code& error );
@@ -52,6 +57,18 @@ private:
     void handle_write(const boost::system::error_code& error);
     void handle_header(const boost::system::error_code& error, std::size_t bytes_transferred );
     void handle_payload(const boost::system::error_code &error, std::size_t bytes_transferred);
+
+    bool IsInGame();
+
+    void ErrorShutdown();
+    void SendServerList();
+    void ErrorMessage( std::string );
+
+    typedef std::vector<boost::asio::const_buffer> SerializedData;
+
+    template<class T, typename C>
+    SerializedData Serialize( const T&, C code );
+
 };
 
 

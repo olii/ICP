@@ -5,6 +5,7 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include "../shared/serverinfo.h"
 
 
 #include "player.h"
@@ -13,16 +14,17 @@
 class Manager
 {
 public:
+
    static Manager& instance()
    {
        static Manager instance_;
        return instance_;
    }
 
-   boost::shared_ptr< Game > CreateGame();
+   boost::shared_ptr< Game > CreateGame(std::string name = std::string("N/A"), int max = 4);
    boost::shared_ptr<Game> GetGameById(uint32_t id);
    boost::shared_ptr<Game> GetJoinableGame();
-   void ServerList();
+   ServerInfoList ServerList();
    void DestroyGame(boost::shared_ptr< Game > game);
    void Shutdown();
 

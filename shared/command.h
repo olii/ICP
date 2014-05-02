@@ -11,7 +11,7 @@ class Command
 {
 public:
     enum HeaderCode { CODE = packetHeader::COMMAND }; // mandatory
-    enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, ACK, NACK, MAP_LIST, ERROR_MESSAGE  };
+    enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE  };
 
     Command();
     Command( std::string txt);

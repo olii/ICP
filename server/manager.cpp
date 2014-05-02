@@ -48,7 +48,7 @@ boost::shared_ptr< Game > Manager::CreateGame(std::string name, int max)
 void Manager::DestroyGame(boost::shared_ptr<Game> game)
 {
     RemoveGame(game);
-    cout << "Manager: games = " << database.size() <<endl;
+    cout << "Manager: Current games = " << database.size() <<endl;
 }
 
 void Manager::Shutdown()

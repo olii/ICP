@@ -1,7 +1,7 @@
 #include "command.h"
 #include <string>
 
-Command::Command()
+Command::Command():id(0)
 {
 
 }

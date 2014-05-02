@@ -7,9 +7,9 @@ CXX = g++-4.8
 
 SERVEROBJ = server/server.o server/main.o server/player.o server/game.o server/manager.o
 SHAREDOBJ = shared/serverinfo.o shared/command.o
-CLIENTOBJ = client/main.o
+CLIENTOBJ = client/main.o client/network.o
 
-DEPSFILES = $(wildcard server/*.c) $(wildcard server/*.h) $(wildcard client/*.c) $(wildcard client/*.h) $(wildcard shared/*.c) $(wildcard shared/*.h)
+DEPSFILES = $(wildcard server/*.cpp) $(wildcard server/*.h) $(wildcard client/*.cpp) $(wildcard client/*.h) $(wildcard shared/*.cpp) $(wildcard shared/*.h)
 
 all: Makefile.deps server-bin client-bin
 %.o: %.cpp
@@ -19,7 +19,7 @@ server-bin: $(SERVEROBJ) $(SHAREDOBJ)
 	$(CXX) $(FLAGS) $(LINKERF) $^ -o $@
        
 client-bin: $(CLIENTOBJ) $(SHAREDOBJ)
-	$(CXX) $(FLAGS) $(LINKERF) $^ -o $@  
+	$(CXX) $(FLAGS) $(LINKERF) -static-libstdc++ $^ -o $@  
 	
 	
 -include Makefile.deps

@@ -96,9 +96,19 @@ void player::ErrorMessage(std::string str)
     text.SetType(Command::ERROR_MESSAGE);
 
     SerializedData buffers = Serialize(text, text.HeaderCode::CODE);
+    boost::system::error_code ec;
+    boost::asio::write( socket_, buffers , ec);
 
-    boost::asio::async_write( socket_, buffers ,
-        boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+    if (ec)
+    {
+        cout << "Player [" << index_ << "] player::ErrorMessage error=" << ec << endl;
+        ErrorShutdown();
+        return;
+    }
+    else
+    {
+        cout << "Player [" << index_ << "] error message sent: " << str << endl;
+    }
 }
 
 uint32_t player::GetIndex()
@@ -134,12 +144,6 @@ void player::listen( const boost::system::error_code& error )
 }
 
 
-void player::do_write( const boost::system::error_code& /*error*/ )
-{
-
-}
-
-
 void player::do_read()
 {
     boost::asio::async_read(socket_, boost::asio::buffer(inheader), boost::asio::transfer_exactly( packetHeader::header_size ),
@@ -157,10 +161,7 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
         return;
     }
 
-    cout << "Player [" << index_ << "]: got header with payload size "<< inheader[1] << endl;
-
-
-
+    void (player::*f_ptr)(const boost::system::error_code& error, std::size_t bytes_transferred) = NULL;
 
 
     switch ( inheader[0] )  // typ paketu
@@ -179,72 +180,185 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
                 ErrorShutdown();
                 return;
             }
+            cout << "Player [" << index_ << "] requested server list, proceeding." << endl;
             SendServerList();
             break;
         }
         case packetHeader::COMMAND:
         {
-            if ( inheader[1] == 0 ) // sprava ma pokracovanie
+            if ( inheader[1] == 0 ) // sprava nema pokracovanie
             {
                 cerr << "Player [" << index_ << "] received packetHeader::COMMAND with null payload size" << endl;
                 ErrorShutdown();
                 return;
             }
+            f_ptr = &player::HandleCommand;
+            break;
         }
         case packetHeader::CREATE_SERVER:
         {
-            if ( inheader[1] == 0 ) // sprava ma pokracovanie
+            if ( inheader[1] == 0 ) // sprava nema pokracovanie
             {
                 cerr << "Player [" << index_ << "] received packetHeader::CREATE_SERVER with null payload size" << endl;
                 ErrorShutdown();
                 return;
             }
-        }
-        case packetHeader::GAME_UPDATE:
-        {
-            if ( inheader[1] == 0 ) // sprava ma pokracovanie
+            if( IsInGame() )
             {
-                cerr << "Player [" << index_ << "] received packetHeader::GAME_UPDATE with null payload size" << endl;
+                ErrorMessage("Cannot create server while joined in game.");
                 ErrorShutdown();
                 return;
             }
+            f_ptr = &player::HandleCreateServer;
+            break;
         }
-
         default:
-            cerr << "Player [" << index_ << "] unknown header, shutting down" << endl;
+            cerr << "Player [" << index_ << "] unknown header '" << inheader[0] << "', shutting down" << endl;
             ErrorShutdown();
             break;
     }
-
-
-
 
     if ( inheader[1] > 0 )
     {
         indata.resize(inheader[1]);
         boost::asio::async_read(socket_, boost::asio::buffer(indata), boost::asio::transfer_exactly( inheader[1] ),
-          boost::bind( &player::handle_payload, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred) );
+          boost::bind( f_ptr, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred) );
     }
     else
     {
         do_read();
     }
-
 }
-
-void player::handle_payload( const boost::system::error_code& error, std::size_t bytes_transferred )
-//TODO parse
+void player::HandleCommand(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
     if ( error || bytes_transferred != inheader[1] )
     {
-        cout << "Player [" << index_ << "] player::listen error=" << error << endl;
+        cout << "Player [" << index_ << "] player::HandleCommand error=" << error << endl;
         ErrorShutdown();
         return;
     }
-    cout << "Player [" << index_ << "] received payload with size "<< inheader[1] << endl;
-    //game->GameMessage(shared_from_this(), buff);
+
+    Command packet;
+    Deserialize( packet );
+
+    //enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE  };
+    switch (packet.type)
+    {
+        case Command::JOIN:
+        {
+            if ( IsInGame() )
+            {
+                ErrorMessage("Player is already in game. Cannot join another one. Leave first.");
+                ErrorShutdown();
+                return;
+            }
+            boost::shared_ptr< Game > new_game = Manager::instance().GetGameById(packet.id);
+
+            if(!new_game)
+            {
+                ErrorMessage(std::string("No game with id ") + std::to_string(packet.id) );
+                ErrorShutdown();
+                return;
+            }
+            if ( ! new_game->Join( shared_from_this() ) )
+            {
+                ErrorMessage(std::string("Unable to join game. Game is full or error ocured.") );
+                ErrorShutdown();
+                return;
+            }
+            game = new_game;
+
+            /* TODO SEND MAP */
+
+            break;
+        }
+        case Command::LEAVE:
+        {
+            if ( !IsInGame() )
+            {
+                ErrorMessage("Player is not in game. Cannot leave.");
+                ErrorShutdown();
+                return;
+            }
+            game->Leave( shared_from_this() );
+            ErrorShutdown(); // nie je skutocne chyba, ale funkcia zastavi socket a hrac sa validne zdestruuje
+            return;
+        }
+        case Command::TEXT:
+        {
+            ErrorMessage("Player is not allowed to sent text message.");
+            ErrorShutdown();
+            return;
+            break;
+        }
+        case Command::LEFT:
+        case Command::RIGHT:
+        case Command::GO:
+        case Command::STOP:
+        case Command::TAKE:
+        case Command::OPEN:
+        {
+            if ( !IsInGame() )
+            {
+                ErrorMessage("Player is not in game. Cannot use game commands.");
+                ErrorShutdown();
+                return;
+            }
+            game->GameMessage( shared_from_this(), packet);
+            break;
+        }
+        case Command::MAP_LIST:
+            cout << "MAP_LIST is not implemented yet" << endl;
+            break;
+        case Command::ERROR_MESSAGE:
+            ErrorMessage("Player is not allowed to sent error message.");
+            ErrorShutdown();
+            return;
+            break;
+        default:
+        {
+            ErrorMessage("Unknown command. Disconnecting...");
+            ErrorShutdown();
+            return;
+        }
+    }
     do_read();
 }
+
+void player::HandleCreateServer(const boost::system::error_code &error, std::size_t bytes_transferred)
+{
+    if ( error || bytes_transferred != inheader[1] )
+    {
+        cout << "Player [" << index_ << "] player::HandleCreateServer error=" << error << endl;
+        ErrorShutdown();
+        return;
+    }
+
+    ServerInfoCreate packet;
+    Deserialize( packet );
+
+    boost::shared_ptr<Game> new_game = Manager::instance().CreateGame(packet.newServer.name, packet.newServer.max);
+    if ( !new_game )
+    {
+        ErrorMessage("Couldn't create game with specified parameters.");
+        ErrorShutdown();
+        return;
+    }
+    if ( ! new_game->Join( shared_from_this() ) )
+    {
+        ErrorMessage(std::string("Unable to join game. Unknown error.") );
+        ErrorShutdown();
+        return;
+    }
+    game = new_game;
+    cout << "Player [" << index_ << "] created game "<< game->GetIndex() << endl;
+
+
+    do_read();
+}
+
+
+
 
 bool player::IsInGame()
 {
@@ -268,7 +382,6 @@ void player::handle_write(const boost::system::error_code& error)
 }
 
 
-
 template <class T, typename C>
 std::vector<boost::asio::const_buffer> player::Serialize(const T &t, C code )
 {
@@ -284,4 +397,14 @@ std::vector<boost::asio::const_buffer> player::Serialize(const T &t, C code )
     buffers.push_back(boost::asio::buffer(outheader));
     buffers.push_back(boost::asio::buffer(outdata));
     return buffers;
+}
+
+template <class T>
+void player::Deserialize( T &t )
+{
+    std::string archive_data(&indata[0], indata.size());
+    std::istringstream archive_stream(archive_data);
+    boost::archive::text_iarchive archive(archive_stream);
+
+    archive >> t;
 }

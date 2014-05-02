@@ -52,22 +52,25 @@ private:
     //bool ProcessSimpleCommand(Co);
 
     void listen(const boost::system::error_code &error);
-    void do_write( const boost::system::error_code& error );
     void do_read();
     void handle_write(const boost::system::error_code& error);
     void handle_header(const boost::system::error_code& error, std::size_t bytes_transferred );
-    void handle_payload(const boost::system::error_code &error, std::size_t bytes_transferred);
+
+    void HandleCreateServer(const boost::system::error_code &error, std::size_t bytes_transferred);
+    void HandleCommand(const boost::system::error_code &error, std::size_t bytes_transferred);
+    void SendServerList();
 
     bool IsInGame();
 
     void ErrorShutdown();
-    void SendServerList();
     void ErrorMessage( std::string );
 
     typedef std::vector<boost::asio::const_buffer> SerializedData;
 
     template<class T, typename C>
     SerializedData Serialize( const T&, C code );
+    template <class T>
+    void Deserialize( T& );
 
 };
 

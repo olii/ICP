@@ -29,7 +29,7 @@ bool Game::Join( boost::shared_ptr<player> user )
 {
     if (players.size() >= maxPlayers)
     {
-        std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] couldn't join to the game." << std::endl;
+        std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] couldn't join to the game. Exceeding maxplayers." << std::endl;
         return false;
     }
     players.insert(user);
@@ -52,7 +52,6 @@ void Game::Leave( boost::shared_ptr<player> user )
         timer.cancel();
         Manager::instance().DestroyGame(shared_from_this());
     }
-
 }
 
 bool Game::Joined( boost::shared_ptr<player> user )
@@ -62,13 +61,13 @@ bool Game::Joined( boost::shared_ptr<player> user )
 
 void Game::GameMessage(boost::shared_ptr<player> user, Command c)
 {
+    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] got command" << std::endl;
     RemovePlayerMessage(user);
     messageQue.emplace_back( user, c );
 }
 
 bool Game::Full()
 {
-    std:: cout << players.size() <<  "  " << maxPlayers<< std::endl;
     return ( players.size() >= maxPlayers );
 }
 
@@ -119,6 +118,7 @@ void Game::GameLoop(const boost::system::error_code &error)
             return;
         }
         std::cout << "Game [" << index_ <<"]: timer error " << error << std::endl;
+        /* TODO ukoncit server bepecne */
     }
     std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
     Dispatch();

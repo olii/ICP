@@ -6,5 +6,12 @@
         <file>resources/kluc.png</file>
         <file>resources/kluc2.png</file>
         <file>resources/podlaha.png</file>
+        <file>resources/ground.jpg</file>
+        <file>resources/wall.png</file>
+        <file>resources/grass.jpg</file>
+        <file>resources/PlayerSpawn.png</file>
+        <file>resources/door.png</file>
+        <file>resources/guard.png</file>
+        <file>resources/key.png</file>
     </qresource>
 </RCC>

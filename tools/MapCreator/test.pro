@@ -16,11 +16,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     GView.cpp \
-    gpixmapitem.cpp
+    gpixmapitem.cpp \
+    map.cpp
 
 HEADERS  += mainwindow.h \
     GView.h \
-    gpixmapitem.h
+    gpixmapitem.h \
+    map.h
 
 FORMS    += mainwindow.ui
 

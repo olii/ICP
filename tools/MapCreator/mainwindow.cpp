@@ -10,7 +10,11 @@
 #include <QTimeLine>
 #include <QGraphicsItemAnimation>
 #include <QHeaderView>
- #include <QTransform>
+#include "map.h"
+#include <fstream>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), timer(this)
 {
@@ -64,8 +68,31 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
+    QString fileName = QFileDialog::getOpenFileName(this,
+             tr("Open Map"), "",
+             tr("ICP Map (*.imp);;All Files (*)"));
+    if (fileName.isEmpty())
+             return;
 
-    setWindowTitle( ui->lineEdit->text() );
+    setWindowTitle( fileName );
+
+    StaticMap t;
+
+    /*QList<QGraphicsItem *> l = ui->graphicsView->scene()->items();
+    for( auto x: l)
+    {
+        GPixmapItem *item =  qgraphicsitem_cast<GPixmapItem*>(x);
+        if ( item == 0 )
+            return;
+        t.items[item->y()/512][item->x()/512] = static_cast<StaticMap::StaticTypes>(item->typ);
+    }*/
+
+
+    std::ifstream ifs(fileName.toStdString());
+    boost::archive::text_iarchive ia(ifs);
+    ia >> t;
+    ui->graphicsView->load(t);
+
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -105,6 +132,29 @@ void MainWindow::gameloop()
 
 void MainWindow::on_pushButton_3_clicked()
 {
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+             tr("Save Map"), "",
+             tr("ICP Map (*.imp);;All Files (*)"));
+    if (fileName.isEmpty())
+             return;
+
+    StaticMap t(ui->graphicsView->dimension.height(), ui->graphicsView->dimension.width());
+
+    QList<QGraphicsItem *> l = ui->graphicsView->scene()->items();
+    for( auto x: l)
+    {
+        GPixmapItem *item =  qgraphicsitem_cast<GPixmapItem*>(x);
+        if ( item == 0 )
+            return;
+        t.items[item->y()/512][item->x()/512] = static_cast<StaticMap::StaticTypes>(item->typ);
+    }
+
+
+    std::ofstream ofs(fileName.toStdString());
+    boost::archive::text_oarchive oa(ofs);
+    oa << t;
+
     /*if ( timer.isActive() )
     {
         timer.stop();
@@ -140,4 +190,19 @@ void MainWindow::on_radioButton_stena_clicked()
 void MainWindow::on_radioButton_clicked()
 {
     ui->graphicsView->active = 2;
+}
+
+void MainWindow::on_radioButton_2_clicked()
+{
+    ui->graphicsView->active = 3;
+}
+
+void MainWindow::on_radioButton_3_clicked()
+{
+    ui->graphicsView->active = 4;
+}
+
+void MainWindow::on_radioButton_4_clicked()
+{
+    ui->graphicsView->active = 5;
 }

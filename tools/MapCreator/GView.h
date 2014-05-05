@@ -6,11 +6,15 @@
 #include <QVector>
 #include <QKeyEvent>
 #include "gpixmapitem.h"
+#include "map.h"
 
 
-const QString stena_base = "://resources/cervena.png";
-const QString podlaha_base = "://resources/33usewk.png";
-const QString kluc_base = "://resources/kluc2.png";
+const QString stena_base = "://resources/wall.png";
+const QString podlaha_base = "://resources/grass.jpg";
+const QString kluc_base = "://resources/key.png";
+const QString playerSpawn = "://resources/PlayerSpawn.png";
+const QString guardSpawn = "://resources/guard.png";
+const QString door = "://resources/door.png";
 
 struct vecStruct{
     QGraphicsPixmapItem* ptr;
@@ -30,9 +34,14 @@ public:
     virtual void wheelEvent(QWheelEvent* event);
     virtual void keyReleaseEvent(QKeyEvent *event);
 
+    void load(StaticMap &t);
+
     QPixmap *podlaha = 0;
     QPixmap *stena = 0;
     QPixmap *kluc = 0;
+    QPixmap *hrac = 0;
+    QPixmap *guard = 0;
+    QPixmap *brana = 0;
     QSize dimension {1,1};
     int active = 0;
     QVector< vecStruct > vec;

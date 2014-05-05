@@ -73,7 +73,7 @@
      </layout>
     </item>
     <item row="3" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetMinimumSize</enum>
       </property>
@@ -108,6 +108,27 @@
        <widget class="QRadioButton" name="radioButton">
         <property name="text">
          <string>Kľúč</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_2">
+        <property name="text">
+         <string>Hrac</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_3">
+        <property name="text">
+         <string>Guard</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_4">
+        <property name="text">
+         <string>Brana</string>
         </property>
        </widget>
       </item>

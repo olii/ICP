@@ -34,7 +34,7 @@ void GView::mouseMoveEvent(QMouseEvent *event)
 
         GPixmapItem *item =  qgraphicsitem_cast<GPixmapItem*>(tmp);
         if ( item == 0 )
-        return;
+            return;
 
         if ( event->buttons() == Qt::RightButton )
         {
@@ -56,6 +56,21 @@ void GView::mouseMoveEvent(QMouseEvent *event)
             item->setPixmap(*kluc);
             item->typ = active;
         }
+        else if ( active == 3 )
+        {
+            item->setPixmap(*hrac);
+            item->typ = active;
+        }
+        else if ( active == 4 )
+        {
+            item->setPixmap(*guard);
+            item->typ = active;
+        }
+        else if ( active == 5 )
+        {
+            item->setPixmap(*brana);
+            item->typ = active;
+        }
         else
         {
             ;
@@ -70,6 +85,9 @@ GView::GView(QWidget *parent) : QGraphicsView(parent)
     podlaha = new QPixmap(podlaha_base);
     stena = new QPixmap(stena_base);
     kluc = new QPixmap(kluc_base);
+    hrac = new QPixmap(playerSpawn);
+    guard = new QPixmap(guardSpawn);
+    brana = new QPixmap(door);
 
     //setDragMode(QGraphicsView::ScrollHandDrag);
     setInteractive(false);
@@ -80,6 +98,9 @@ GView::~GView()
     delete podlaha;
     delete stena;
     delete kluc;
+    delete hrac;
+    delete guard;
+    delete brana;
     scene()->clear();
 }
 
@@ -109,6 +130,44 @@ void GView::keyReleaseEvent(QKeyEvent *event)
     {
         QGraphicsView::keyPressEvent(event);
     }
+}
+
+void GView::load(StaticMap &t)
+{
+    scene()->clear();
+    dimension.setHeight(t.items.size());
+    dimension.setWidth(t.items[0].size());
+
+    for ( uint i = 0; i<t.items.size(); i++ )
+        for (uint j = 0; j<t.items[0].size(); ++j)
+        {
+            GPixmapItem* tmp = new GPixmapItem(*podlaha);
+            tmp->setPos( podlaha->width()*j, podlaha->height()*i);
+            tmp->setToolTip(QString("TEST") + QString::number(i));
+            switch(t.items[i][j])
+            {
+                case 0:
+                    break;
+                case 1:
+                    tmp->setPixmap(*stena);
+                    break;
+                case 2:
+                    tmp->setPixmap(*kluc);
+                    break;
+                case 3:
+                    tmp->setPixmap(*hrac);
+                    break;
+                case 4:
+                    tmp->setPixmap(*guard);
+                    break;
+                case 5:
+                    tmp->setPixmap(*brana);
+                    break;
+            }
+            tmp->typ = t.items[i][j];
+            scene()->addItem( tmp );
+        }
+    scene()->setSceneRect(scene()->itemsBoundingRect());
 }
 
 

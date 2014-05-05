@@ -362,7 +362,7 @@ void player::HandleCreateServer(const boost::system::error_code &error, std::siz
 
 bool player::IsInGame()
 {
-    return (game);
+    return static_cast<bool>(game);
 }
 
 

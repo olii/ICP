@@ -9,24 +9,57 @@
 #include <QResizeEvent>
 #include <QTimeLine>
 #include <QGraphicsItemAnimation>
+#include <QHeaderView>
+ #include <QTransform>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), timer(this)
 {
     ui->setupUi(this);
     scene = new QGraphicsScene(this);
 
     ui->graphicsView->setScene(scene);
-    timer = new QTimer( this );
-    connect(timer, SIGNAL(timeout()), this, SLOT(gameloop()));
-    timer->setInterval(0);
+    connect(&timer, SIGNAL(timeout()), this, SLOT(gameloop()));
+    timer.setInterval(0);
     ui->statusBar->showMessage("PLACEHOLDER");
     setWindowTitle( "ICP" );
+
+
+    ui->tableWidget->setRowCount(2);
+    ui->tableWidget->setColumnCount(4);
+
+    QStringList m_TableHeader;
+    m_TableHeader<<"#"<<"Name"<<"Players" << "Map";
+    ui->tableWidget->setHorizontalHeaderLabels(m_TableHeader);
+    ui->tableWidget->verticalHeader()->setVisible(false);
+    ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setItem(0, 0, new QTableWidgetItem("1"));
+    ui->tableWidget->setItem(0, 1, new QTableWidgetItem("Dummy name"));
+    ui->tableWidget->setItem(0, 2, new QTableWidgetItem("2/4"));
+    ui->tableWidget->setItem(0, 3, new QTableWidgetItem("Big map"));
+    ui->tableWidget->setItem(1, 0, new QTableWidgetItem("2"));
+    ui->tableWidget->setItem(1, 1, new QTableWidgetItem("Dummy name2"));
+    ui->tableWidget->setItem(1, 2, new QTableWidgetItem("4/4"));
+    ui->tableWidget->setItem(1, 3, new QTableWidgetItem("Big map2"));
+
+    connect( ui->tableWidget, SIGNAL( cellDoubleClicked ( int, int ) ),
+                 this, SLOT( cellSelected( int, int ) ) );
+}
+
+void MainWindow::cellSelected(int nRow, int nCol)
+{
+    qDebug() << "Cell at row " << QString::number(nRow) <<" column " << QString::number(nCol)
+             << " was double clicked. ID:";
+
+    QTableWidgetItem * tmp = ui->tableWidget->item(nRow, 0);
+    qDebug() << tmp->text();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete timer;
+    //delete timer;
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -53,32 +86,32 @@ void MainWindow::on_pushButton_2_clicked()
     }*/
     ui->graphicsView->scene()->clear();
     ui->graphicsView->dimension = QSize( ui->lineEdit->text().toInt(), ui->lineEdit_2->text().toInt() );
-    ui->graphicsView->resize_textures();
+    //ui->graphicsView->resize_textures();
     ui->graphicsView->init();
 
 }
 
 void MainWindow::gameloop()
 {
-    QList<QGraphicsItem *> list = scene->items();
+    /*QList<QGraphicsItem *> list = scene->items();
 
     QList<QGraphicsItem *>::iterator i;
     for (i = list.begin(); i != list.end(); ++i)
     {
         (*i)->setPos((*i)->pos().x()+1, (*i)->pos().y()+1);
-    }
-
+    }*/
+    ui->graphicsView->translate(1.0, 2.0);
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
-    /*if ( timer->isActive() )
+    /*if ( timer.isActive() )
     {
-        timer->stop();
+        timer.stop();
     }
     else
     {
-        timer->start();
+        timer.start();
     }*/
 }
 

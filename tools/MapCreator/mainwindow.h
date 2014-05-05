@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QVector>
+#include <QTimer>
 
 
 namespace Ui {
@@ -31,10 +32,12 @@ private slots:
 
     void on_radioButton_clicked();
 
+    void cellSelected(int nRow, int nCol);
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
-    QTimer *timer;
+    QTimer timer;
 
 
 };

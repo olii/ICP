@@ -6,117 +6,109 @@
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
 #include <QWhatsThis>
+#include <QScrollBar>
+#include "gpixmapitem.h"
+#include "boost/serialization/serialization.hpp"
+
+
 
 void GView::mousePressEvent(QMouseEvent *event)
 {
+    if (event->modifiers() & Qt::ControlModifier)
+    {
+        QGraphicsView::mousePressEvent(event);
+    }
     mouseMoveEvent( event );
 }
 
 void GView::mouseMoveEvent(QMouseEvent *event)
 {
-    QGraphicsItem *tmp = this->scene()->itemAt(event->localPos(), QTransform());
-
-
-    QGraphicsPixmapItem *item =  qgraphicsitem_cast<QGraphicsPixmapItem*>(tmp);
-    if ( item == 0 )
-        return;
-
-    int index = (event->pos().y()/podlaha->size().height()) + (event->pos().x()/podlaha->size().width()) * dimension.height();
-
-    if (index > (dimension.width()*dimension.height()-1) )
-        return;
-
-    if ( event->buttons() == Qt::RightButton )
+    if (event->modifiers() & Qt::ControlModifier)
     {
-        vec[index].ptr->setPixmap(*podlaha);
-        vec[index].item = 0;
-    }
-    else if (active == 0)
-    {
-        vec[index].ptr->setPixmap(*podlaha);
-        vec[index].item = active;
-    }
-    else if (active == 1)
-    {
-        vec[index].ptr->setPixmap(*stena);
-        vec[index].item = active;
-    }
-    else if (active == 2)
-    {
-        vec[index].ptr->setPixmap(*kluc);
-        vec[index].item = active;
+        QGraphicsView::mouseMoveEvent(event);
     }
     else
     {
-        ;
+        QPointF point = mapToScene(event->pos());
+        QGraphicsItem *tmp = this->scene()->itemAt(point, QTransform());
+
+        GPixmapItem *item =  qgraphicsitem_cast<GPixmapItem*>(tmp);
+        if ( item == 0 )
+        return;
+
+        if ( event->buttons() == Qt::RightButton )
+        {
+            item->setPixmap(*podlaha);
+            item->typ = 0;
+        }
+        else if (active == 0)
+        {
+            item->setPixmap(*podlaha);
+            item->typ = active;
+        }
+        else if (active == 1)
+        {
+            item->setPixmap(*stena);
+            item->typ = active;
+        }
+        else if (active == 2)
+        {
+            item->setPixmap(*kluc);
+            item->typ = active;
+        }
+        else
+        {
+            ;
+        }
     }
 }
 
 
 GView::GView(QWidget *parent) : QGraphicsView(parent)
 {
-    podlaha_orig = new QPixmap(podlaha_base);
-    stena_orig = new QPixmap(stena_base);
-    kluc_orig = new QPixmap(kluc_base);
-    podlaha = new QPixmap();
-    stena = new QPixmap();
-    kluc = new QPixmap();
-    resize_textures();
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    podlaha = new QPixmap(podlaha_base);
+    stena = new QPixmap(stena_base);
+    kluc = new QPixmap(kluc_base);
+
+    //setDragMode(QGraphicsView::ScrollHandDrag);
+    setInteractive(false);
 }
 
 GView::~GView()
 {
     delete podlaha;
-    delete podlaha_orig;
     delete stena;
-    delete stena_orig;
     delete kluc;
-    delete kluc_orig;
     scene()->clear();
 }
 
-void GView::resizeEvent ( QResizeEvent * event )
+void GView::resizeEvent(QResizeEvent *event) {
+    QGraphicsView::resizeEvent(event);
+}
+
+void GView::keyPressEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event);
-    resize_textures();
-
-    int dx = podlaha->size().width();
-    int dy = podlaha->size().height();
-
-    int m = 0;
-    int n = 0;
-
-    QVector<vecStruct>::iterator i;
-    for (i = vec.begin(); i != vec.end(); ++i)
+    if(event->key() == Qt::Key_Control)
     {
-        (*i).ptr->setPos( m*dx, n*dy);
-        if ((*i).item == 0)
-            (*i).ptr->setPixmap(*podlaha);
-        else if ((*i).item == 1)
-            (*i).ptr->setPixmap(*stena);
-        else if ((*i).item == 2)
-            (*i).ptr->setPixmap(*kluc);
-
-        n++;
-
-        if ( n >= dimension.height() )
-        {
-            n = 0;
-            m++;
-        }
+        setDragMode(QGraphicsView::ScrollHandDrag);
+    }
+    else
+    {
+        QGraphicsView::keyPressEvent(event);
     }
 }
 
-
-
-void GView::resize_textures()
+void GView::keyReleaseEvent(QKeyEvent *event)
 {
-    QSize rect = size();
-    QSize size (rect.width()/dimension.width(), rect.height()/dimension.height() );
-
-    *podlaha = podlaha_orig->scaled(size,Qt::IgnoreAspectRatio,Qt::FastTransformation);
-    *stena = stena_orig->scaled(size,Qt::IgnoreAspectRatio,Qt::FastTransformation);
-    *kluc = kluc_orig->scaled(size,Qt::IgnoreAspectRatio,Qt::FastTransformation);
+    if(event->key() == Qt::Key_Control)
+    {
+        setDragMode(QGraphicsView::NoDrag);
+    }
+    else
+    {
+        QGraphicsView::keyPressEvent(event);
+    }
 }
 
 
@@ -124,21 +116,31 @@ void GView::resize_textures()
 
 void GView::init()
 {
-    resize_textures();
     vec.clear();
     scene()->clear();
     for( int i = 0; i< dimension.width(); ++i )
     {
         for ( int j = 0; j < dimension.height(); j++ )
         {
-            QGraphicsPixmapItem *tmp = this->scene()->addPixmap( *podlaha );
+            GPixmapItem* tmp = new GPixmapItem(*podlaha);
             tmp->setPos( podlaha->width()*i, podlaha->height()*j);
             tmp->setToolTip(QString("TEST") + QString::number(i));
-            vecStruct v {tmp, 0};
-            vec.append(v);
+            this->scene()->addItem( tmp );
         }
 
     }
+    scene()->setSceneRect(scene()->itemsBoundingRect());
+}
+
+void GView::wheelEvent(QWheelEvent* event) {
+
+    const QPointF p0scene = mapToScene(event->pos());
+    qreal factor = std::pow(1.001, event->delta());
+    scale(factor, factor);
+    const QPointF p1mouse = mapFromScene(p0scene);
+    const QPointF move = p1mouse - event->pos(); // The move
+    horizontalScrollBar()->setValue(move.x() + horizontalScrollBar()->value());
+    verticalScrollBar()->setValue(move.y() + verticalScrollBar()->value());
 }
 
 

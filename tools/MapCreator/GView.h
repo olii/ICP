@@ -4,6 +4,10 @@
 #include <QGraphicsView>
 #include <QPixmap>
 #include <QVector>
+#include <QKeyEvent>
+#include "gpixmapitem.h"
+
+
 const QString stena_base = "://resources/cervena.png";
 const QString podlaha_base = "://resources/33usewk.png";
 const QString kluc_base = "://resources/kluc2.png";
@@ -22,10 +26,10 @@ public:
     virtual void mousePressEvent( QMouseEvent * event );
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void resizeEvent ( QResizeEvent * event );
+    virtual void keyPressEvent ( QKeyEvent * event );
+    virtual void wheelEvent(QWheelEvent* event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
 
-    QPixmap *podlaha_orig = 0;
-    QPixmap *stena_orig = 0;
-    QPixmap *kluc_orig = 0;
     QPixmap *podlaha = 0;
     QPixmap *stena = 0;
     QPixmap *kluc = 0;
@@ -36,8 +40,8 @@ public:
     float floatx = 0.0;
     float floaty = 0.0;
 
-    void resize_textures();
     void init();
+
 
 };
 

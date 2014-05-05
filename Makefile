@@ -1,8 +1,8 @@
 FLAGS = -std=c++11 -g3 -pedantic -Wall -Wextra
-LINKERF = -lboost_system-mt -lboost_thread-mt -lboost_serialization
+LINKERF = -lboost_system-mt -lboost_thread-mt -lboost_serialization-mt
 
 #-O2 -static-libstdc++ -pthread
-CXX = g++-4.8
+CXX = g++-4.9
 .PHONY=clean blackhole
 
 SERVEROBJ = server/server.o server/main.o server/player.o server/game.o server/manager.o
@@ -19,7 +19,7 @@ server-bin: $(SERVEROBJ) $(SHAREDOBJ)
 	$(CXX) $(FLAGS) $(LINKERF) $^ -o $@
        
 client-bin: $(CLIENTOBJ) $(SHAREDOBJ)
-	$(CXX) $(FLAGS) $(LINKERF) -static-libstdc++ $^ -o $@  
+	$(CXX) $(FLAGS) $(LINKERF) $^ -o $@  
 	
 	
 -include Makefile.deps

@@ -103,7 +103,7 @@ void Network::ReadPacket()
 
 packetHeader Network::GetHeaderType()
 {
-    return static_cast<packetHeader>(inheader[1]);
+    return static_cast<packetHeader>(inheader[0]);
 }
 
 ServerInfoList Network::GetServerList()
@@ -114,7 +114,6 @@ ServerInfoList Network::GetServerList()
     boost::asio::write(socket_, boost::asio::buffer(outheader), boost::asio::transfer_all());
 
     ReadPacket();
-
     if ( GetHeaderType() != packetHeader::SERVER_LIST )
     {
         throw NetworkException("Bad answer from server. Expected server list.");

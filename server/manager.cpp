@@ -32,15 +32,17 @@ ServerInfoList Manager::ServerList()
     ServerInfoList l;
     for ( auto x: database )
     {
-        ServerInfo tmp(x.second->GetIndex(), x.second->GetName(), x.second->GetPlayerCount(),x.second->GetMaxPlayers(), std::string("Dummy Map") );
+        ServerInfo tmp(x.second->GetIndex(), x.second->GetName(), x.second->GetPlayerCount(),x.second->GetMaxPlayers(),
+                       x.second->GetMap(), x.second->GetTick(), x.second->GetTimeout() );
         l.list.push_back(tmp);
     }
     return l;
 }
 
-boost::shared_ptr< Game > Manager::CreateGame(std::string name, int max)
+boost::shared_ptr< Game > Manager::CreateGame(std::string name, int max, float tick, int timeout, std::string map )
 {
-    boost::shared_ptr< Game > ptr ( new Game(name, max) );
+    // TODO mapa
+    boost::shared_ptr< Game > ptr ( new Game(name, max, tick, timeout, map) );
     AddGame(ptr);
     return ptr;
 }

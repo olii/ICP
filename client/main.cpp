@@ -43,9 +43,26 @@ int main(int argc, char* argv[])
     Network connection(argv[1], argv[2]);
     connection.Connect();
     //connection.Join(0);
-    connection.CreateServer("SERVER0", 1, "MAPNAME", 1.3, 5);
+    ServerInfoList list = connection.GetServerList();
+    for( auto x: list.list )
+    {
+        cout << x << endl;
+    }
+
+    if( list.list.size() > 0 )
+    {
+        int gameid;
+        cout << "Enter game id to join: ";
+        cin >> gameid;
+        connection.Join(gameid);
+    }
+    else
+    {
+        connection.CreateServer("SERVER0", 2, "MAPNAME", 1, 5);
+    }
 
     changemode(1);
+    /* MAIN GAME LOOP */
     while ( !cin.eof() )
     {
         if ( kbhit() )
@@ -86,6 +103,7 @@ int main(int argc, char* argv[])
   catch (std::exception& e)
   {
     std::cerr << "Exception: " << e.what() << "\n";
+    changemode(0);
   }
 
   return 0;

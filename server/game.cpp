@@ -1,6 +1,7 @@
 #include "game.h"
 #include "manager.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <iostream>
 #include <set>
 #include <utility>
@@ -11,9 +12,14 @@ using std::set;
 uint32_t Game::index = 0;
 
 
-Game::Game(std::string name, int max ):index_( Game::index++ ), maxPlayers(max), timer(io_service)
+Game::Game(std::string name, int max, float tick, int timeout, std::string map ):index_( Game::index++ ), timer(io_service)
 {
     this->name = name;
+    this->maxPlayers = max;
+    this->tick = boost::posix_time::seconds(int(tick)) + boost::posix_time::millisec( (tick - int(tick))*1000 );
+    this->timeout = timeout;
+    this->map = map;
+    this->tickF = tick;
     std::cout << "Game [" << index_ << "  " << this->name << "] constructed" << std::endl;
 }
 
@@ -91,6 +97,21 @@ int Game::GetMaxPlayers()
     return maxPlayers;
 }
 
+std::string Game::GetMap()
+{
+    return map;
+}
+
+float Game::GetTick()
+{
+    return tickF;
+}
+
+int Game::GetTimeout()
+{
+    return timeout;
+}
+
 void Game::Shutdown()
 {
     timer.cancel();
@@ -104,7 +125,7 @@ void Game::Shutdown()
 
 void Game::Start()
 {
-    timer.expires_from_now(boost::posix_time::seconds(1));
+    timer.expires_from_now(tick);
     timer.async_wait( boost::bind( &Game::GameLoop, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
@@ -122,7 +143,8 @@ void Game::GameLoop(const boost::system::error_code &error)
     }
     std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
     Dispatch();
-    timer.expires_from_now(boost::posix_time::seconds(1));
+
+    timer.expires_at(timer.expires_at() + tick);
     timer.async_wait( boost::bind( &Game::GameLoop, shared_from_this(), boost::asio::placeholders::error ) );
 }
 

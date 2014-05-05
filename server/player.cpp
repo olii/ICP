@@ -337,7 +337,7 @@ void player::HandleCreateServer(const boost::system::error_code &error, std::siz
     ServerInfoCreate packet;
     Deserialize( packet );
 
-    boost::shared_ptr<Game> new_game = Manager::instance().CreateGame(packet.newServer.name, packet.newServer.max);
+    boost::shared_ptr<Game> new_game = Manager::instance().CreateGame(packet.newServer.name, packet.newServer.max, packet.newServer.timer, packet.newServer.timeout, packet.newServer.map);
     if ( !new_game )
     {
         ErrorMessage("Couldn't create game with specified parameters.");

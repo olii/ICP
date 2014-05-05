@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
@@ -12,7 +13,7 @@ class ServerInfo
 {
 public:
     ServerInfo( );
-    ServerInfo( unsigned int, std::string, unsigned int, unsigned int, std::string );
+    ServerInfo( unsigned int, std::string, unsigned int, unsigned int, std::string, float, int  );
 
     unsigned int id;        // id hry
     std::string name;       // nazov servera
@@ -23,6 +24,8 @@ public:
     int timeout;            // cakaci cas na dalsich hracov, menej ako 10 min
 
     bool ValidateNewGame();
+
+    friend std::ostream& operator<<(std::ostream& os, const ServerInfo& t);
 
 
 private:
@@ -35,6 +38,8 @@ private:
         ar & playing;
         ar & max;
         ar & map;
+        ar & timer;
+        ar & timeout;
     }
 };
 

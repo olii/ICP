@@ -21,7 +21,7 @@ public:
        return instance_;
    }
 
-   boost::shared_ptr< Game > CreateGame(std::string name = std::string("N/A"), int max = 4);
+   boost::shared_ptr< Game > CreateGame(std::string name, int max, float tick, int timeout, std::string map );
    boost::shared_ptr<Game> GetGameById(uint32_t id);
    boost::shared_ptr<Game> GetJoinableGame();
    ServerInfoList ServerList();

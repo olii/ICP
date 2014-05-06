@@ -31,5 +31,8 @@ RESOURCES += \
 
 win32 {
     INCLUDEPATH += C:/Users/olii/Desktop/boost_1_48_0
-    LIBS += C:/Users/olii/Desktop/boost_1_48_0/stage/lib/libboost_serialization-mgw48-mt-d-1_48.a \
+    LIBS += C:/Users/olii/Desktop/boost_1_48_0/stage/lib/libboost_serialization-mgw48-mt-d-1_48.a
+}
+linux {
+    LIBS += -lboost_serialization
 }

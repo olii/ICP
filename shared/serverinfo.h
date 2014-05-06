@@ -23,8 +23,6 @@ public:
     float timer;            // ako casto sa vzhodnocuje go
     int timeout;            // cakaci cas na dalsich hracov, menej ako 10 min
 
-    bool ValidateNewGame();
-
     friend std::ostream& operator<<(std::ostream& os, const ServerInfo& t);
 
 

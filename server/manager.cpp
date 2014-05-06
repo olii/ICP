@@ -2,6 +2,12 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include "game.h"
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <fstream>
+
+#include <boost/archive/text_iarchive.hpp>
+
 
 using std::cout;
 using std::endl;
@@ -39,10 +45,71 @@ ServerInfoList Manager::ServerList()
     return l;
 }
 
+ServerInfoList Manager::MapList()
+{
+    ServerInfoList l;
+    for ( auto x: maplist )
+    {
+        ServerInfo tmp(0, "", 0,0, x.second.name, 0, 0 );
+        l.list.push_back(tmp);
+    }
+    return l;
+}
+
+void Manager::LoadMapList()
+{
+    boost::filesystem::path targetDir("./maps");
+    boost::filesystem::directory_iterator it(targetDir), eod;
+
+    BOOST_FOREACH(boost::filesystem::path const &p, std::make_pair(it, eod))
+    {
+        if(is_regular_file(p) && p.extension().compare( std::string("imp")) )
+        {
+            Map m;
+            try
+            {
+                std::ifstream ifs(p.generic_string());
+                boost::archive::text_iarchive ia(ifs);
+                ia >> m;
+                m.name = p.stem().generic_string();
+
+                maplist[ p.stem().generic_string() ] = m;
+            }
+            catch( boost::archive::archive_exception &e )
+            {
+                std::cerr << "Warning: " << e.what() <<std::endl;
+            }
+        }
+    }
+    cout << "Manager: Loaded " << maplist.size() << " map(s)." << endl;
+}
+
+bool Manager::ValidateNewGame(std::string &name, int max, float tick, int timeout, std::string &map )
+{
+    if (name == std::string(""))
+        return false;
+    if ( max <1 || max > 4 )
+        return false;
+    if ( tick <0.5 || tick > 5 )
+        return false;
+    if ( timeout <0 || timeout > ( 10*60 ) ) // max 10 minut
+        return false;
+    if ( maplist.find( map ) == maplist.end() )
+    {
+        return false;
+    }
+    return true;
+}
+
 boost::shared_ptr< Game > Manager::CreateGame(std::string name, int max, float tick, int timeout, std::string map )
 {
-    // TODO mapa
-    boost::shared_ptr< Game > ptr ( new Game(name, max, tick, timeout, map) );
+
+    if( !ValidateNewGame(name, max, tick, timeout, map) )
+    {
+        return boost::shared_ptr< Game > ();
+    }
+
+    boost::shared_ptr< Game > ptr ( new Game(name, max, tick, timeout, maplist[map]) );
     AddGame(ptr);
     return ptr;
 }

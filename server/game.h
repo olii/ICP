@@ -9,6 +9,7 @@
 #include <string>
 #include "player.h"
 #include "../shared/command.h"
+#include "../shared/map.h"
 
 
 
@@ -19,7 +20,7 @@ class player;
 class Game: public boost::enable_shared_from_this<Game>
 {
 public:
-    Game(std::string name, int max , float tick, int timeout, std::string map);
+    Game(std::string name, int max , float tick, int timeout, Map map);
     ~Game();
     bool Join( boost::shared_ptr<player> user );
     void Leave( boost::shared_ptr<player> user );
@@ -49,7 +50,7 @@ private:
     uint maxPlayers;
     boost::posix_time::time_duration tick;
     int timeout;
-    std::string map;
+    Map map;
 
     float tickF;
 

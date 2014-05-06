@@ -27,11 +27,11 @@ int main(int argc, char *argv[])
         cout << "USAGE ./server [port]" << endl;
         return 1;
     }
+    Manager::instance().LoadMapList();
 
     tcp::endpoint endpoint(tcp::v4(), atoi(argv[1]));
     server labyrint( io_service, endpoint );
 
-    //Manager::instance().CreateGame();
 
     signal(SIGINT, sighandler);
     io_service.run();

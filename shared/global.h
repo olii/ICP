@@ -4,6 +4,6 @@
 #include <cstdint>
 
 
-enum packetHeader { header_size = 2 * (sizeof (uint32_t) ),  HELLO=1000, SERVER_LIST, COMMAND, CREATE_SERVER, GAME_UPDATE };
+enum packetHeader { header_size = 2 * (sizeof (uint32_t) ),  HELLO=1000, SERVER_LIST, COMMAND, CREATE_SERVER, STATIC_MAP, GAME_UPDATE };
 
 #endif // GLOBAL_H

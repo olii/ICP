@@ -12,7 +12,7 @@ using std::set;
 uint32_t Game::index = 0;
 
 
-Game::Game(std::string name, int max, float tick, int timeout, std::string map ):index_( Game::index++ ), timer(io_service)
+Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_( Game::index++ ), timer(io_service)
 {
     this->name = name;
     this->maxPlayers = max;
@@ -39,11 +39,12 @@ bool Game::Join( boost::shared_ptr<player> user )
         return false;
     }
     players.insert(user);
-    if ( Full() )
+    if ( players.size() == 1 )
     {
         Start();
     }
     std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game." << std::endl;
+    user->SendStaticMap(map);
     return true;
 }
 
@@ -99,7 +100,7 @@ int Game::GetMaxPlayers()
 
 std::string Game::GetMap()
 {
-    return map;
+    return map.name;
 }
 
 float Game::GetTick()
@@ -125,7 +126,7 @@ void Game::Shutdown()
 
 void Game::Start()
 {
-    timer.expires_from_now(tick);
+    timer.expires_from_now(boost::posix_time::seconds(timeout));
     timer.async_wait( boost::bind( &Game::GameLoop, shared_from_this(), boost::asio::placeholders::error ) );
 }
 

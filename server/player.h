@@ -10,6 +10,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "game.h"
 #include "../shared/serverinfo.h"
+#include "../shared/map.h"
 
 
 
@@ -33,12 +34,15 @@ public:
     void start();
     void LeaveServerRequest();
     void SendString( std::string str);
+    void SendStaticMap(Map &map);
 
     uint32_t GetIndex();
 
     tcp::socket socket_;
 
     static uint32_t index;
+
+
 private:
     uint32_t index_;
     bool shutdown = false;
@@ -59,6 +63,7 @@ private:
     void HandleCreateServer(const boost::system::error_code &error, std::size_t bytes_transferred);
     void HandleCommand(const boost::system::error_code &error, std::size_t bytes_transferred);
     void SendServerList();
+    void SendMapList();
 
     bool IsInGame();
 

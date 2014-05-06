@@ -2,8 +2,11 @@
 #define NETWORK_H
 #include <boost/asio.hpp>
 #include <string>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include "../shared/serverinfo.h"
 #include "../shared/command.h"
+#include "../shared/map.h"
 
 using boost::asio::ip::tcp;
 
@@ -21,10 +24,17 @@ public:
     void SendCommand(Command &c);
     void ReadPacket();
     packetHeader GetHeaderType();
-    template<class T> T GetPacketContent();
     ServerInfoList GetServerList();
     ServerInfoList GetMapList();
     void CreateServer(std::string name, unsigned int max, std::string map, float timer, int timeout);
+
+    template<class T>
+    T GetPacketContent()
+    {
+        T t;
+        Deserialize(t);
+        return t;
+    }
 
 private:
     boost::asio::io_service io_service;
@@ -38,14 +48,38 @@ private:
     std::string outdata;
     std::vector<char> indata;
 
+    void SendHello();
+
 
 
     typedef std::vector<boost::asio::const_buffer> SerializedData;
-    template<class T, typename C>
-    SerializedData Serialize( const T&, C code );
+
+    template <class T, typename C>
+    std::vector<boost::asio::const_buffer> Serialize(const T &t, C code )
+    {
+        std::ostringstream archive_stream;
+        boost::archive::text_oarchive archive(archive_stream);
+        archive << t;
+
+        outheader[0] = code;
+        outheader[1] = static_cast<uint32_t>(archive_stream.str().size()) ;
+        outdata = archive_stream.str();
+
+        SerializedData buffers;
+        buffers.push_back(boost::asio::buffer(outheader));
+        buffers.push_back(boost::asio::buffer(outdata));
+        return buffers;
+    }
 
     template <class T>
-    void Deserialize( T& );
+    void Deserialize( T &t )
+    {
+        std::string archive_data(&indata[0], indata.size());
+        std::istringstream archive_stream(archive_data);
+        boost::archive::text_iarchive archive(archive_stream);
+
+        archive >> t;
+    }
 
 
 };

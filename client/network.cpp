@@ -2,12 +2,11 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <exception>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 
 #include "../shared/global.h"
 #include "../shared/serverinfo.h"
 #include "../shared/command.h"
+#include "../shared/map.h"
 
 Network::Network(std::string hostP, std::string portP): host(hostP), port(portP), socket_(io_service)
 {
@@ -34,10 +33,18 @@ void Network::Shutdown()
 
 bool Network::Ready()
 {
-    if (failbit)
+    static int counter = 0;
+    if (failbit || !socket_.is_open())
     {
         throw NetworkException("Network error.");
     }
+    if ( counter ==  128 ) // hack, heartbeat
+    {
+        counter = 0;
+        SendHello();
+    }
+    ++counter;
+
     size_t ready = socket_.available();
     if (ready >= packetHeader::header_size)
     {
@@ -78,6 +85,7 @@ void Network::ReadPacket()
     boost::asio::read(socket_, boost::asio::buffer(inheader), boost::asio::transfer_exactly(packetHeader::header_size) );
     if ( (inheader[0] != packetHeader::SERVER_LIST) &&
          (inheader[0] != packetHeader::COMMAND) &&
+         (inheader[0] != packetHeader::STATIC_MAP) &&
          (inheader[0] != packetHeader::GAME_UPDATE) )
     {
         throw NetworkException("Network error: Unknown packet header.");
@@ -159,6 +167,20 @@ void Network::CreateServer(std::string name, unsigned int max, std::string map, 
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
 }
 
+void Network::SendHello()
+{
+    outheader[0] = packetHeader::HELLO;
+    outheader[1] = packetHeader::HELLO;
+    try
+    {
+        boost::asio::write(socket_, boost::asio::buffer(outheader), boost::asio::transfer_all());
+    }
+    catch (...)
+    {
+        throw NetworkException("Network disconnected.");
+    }
+}
+
 bool Network::Connect()
 {
     boost::asio::ip::tcp::resolver resolver(io_service);
@@ -194,45 +216,3 @@ bool Network::Connect()
     return true;
 }
 
-template<class T>
-T Network::GetPacketContent()
-{
-    T t;
-    Deserialize(t);
-    return t;
-}
-
-
-
-
-
-
-
-
-
-template <class T, typename C>
-std::vector<boost::asio::const_buffer> Network::Serialize(const T &t, C code )
-{
-    std::ostringstream archive_stream;
-    boost::archive::text_oarchive archive(archive_stream);
-    archive << t;
-
-    outheader[0] = code;
-    outheader[1] = static_cast<uint32_t>(archive_stream.str().size()) ;
-    outdata = archive_stream.str();
-
-    SerializedData buffers;
-    buffers.push_back(boost::asio::buffer(outheader));
-    buffers.push_back(boost::asio::buffer(outdata));
-    return buffers;
-}
-
-template <class T>
-void Network::Deserialize( T &t )
-{
-    std::string archive_data(&indata[0], indata.size());
-    std::istringstream archive_stream(archive_data);
-    boost::archive::text_iarchive archive(archive_stream);
-
-    archive >> t;
-}

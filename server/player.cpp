@@ -37,11 +37,10 @@ player::player(boost::asio::io_service& io_service): socket_(io_service)
 
 player::~player()
 {
-    if (socket_.is_open())
-    {
-        socket_.cancel();
-        socket_.close();
-    }
+    boost::system::error_code ignored;
+    socket_.cancel(ignored);
+    socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored);
+    socket_.close(ignored);
     cout << "Player [" << index_ << "] destructed." << endl;
 }
 
@@ -90,6 +89,16 @@ void player::SendServerList()
                               boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
+void player::SendMapList()
+{
+    ServerInfoList list = Manager::instance().MapList();
+
+    SerializedData buffers = Serialize(list, list.HeaderCode::CODE);
+
+    boost::asio::async_write( socket_, buffers,
+                              boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+}
+
 void player::ErrorMessage(std::string str)
 {
     Command text(str);
@@ -128,7 +137,15 @@ void player::SendString( std::string str )
     SerializedData buffers = Serialize(text, text.HeaderCode::CODE);
 
     boost::asio::async_write( socket_, buffers ,
-        boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+                              boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+}
+
+void player::SendStaticMap(Map &map)
+{
+    SerializedData buffers = Serialize(map, map.HeaderCode::CODE);
+
+    boost::asio::async_write( socket_, buffers ,
+                              boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
 
@@ -166,6 +183,9 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
 
     switch ( inheader[0] )  // typ paketu
     {
+        case packetHeader::HELLO:
+            inheader[1] = 0;
+            break;
         case packetHeader::SERVER_LIST:
         {
             if ( inheader[1] != 0 )
@@ -268,8 +288,6 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
             }
             game = new_game;
 
-            /* TODO SEND MAP */
-
             break;
         }
         case Command::LEAVE:
@@ -308,7 +326,13 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
             break;
         }
         case Command::MAP_LIST:
-            cout << "MAP_LIST is not implemented yet" << endl;
+            if ( IsInGame() )
+            {
+                ErrorMessage("Player is in game. Cannot request maplist.");
+                ErrorShutdown();
+                return;
+            }
+            SendMapList();
             break;
         case Command::ERROR_MESSAGE:
             ErrorMessage("Player is not allowed to sent error message.");

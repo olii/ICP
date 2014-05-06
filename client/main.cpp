@@ -9,6 +9,7 @@
 #include "../shared/global.h"
 #include "../shared/command.h"
 #include "../shared/serverinfo.h"
+#include "../shared/map.h"
 #include "network.h"
 
 
@@ -17,6 +18,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <cstdlib>
 
 #include <thread>
 #include <chrono>
@@ -29,84 +31,121 @@ using std::cin;
 
 void changemode(int);
 int  kbhit(void);
+void Exit_fix_terminal(void)
+{
+    changemode(0);
+}
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    if (argc != 3)
+    atexit (Exit_fix_terminal);
+    changemode(-1);
+    try
     {
-      std::cerr << "Usage: <host> <port>\n";
-      return 1;
-    }
-
-    Network connection(argv[1], argv[2]);
-    connection.Connect();
-    //connection.Join(0);
-    ServerInfoList list = connection.GetServerList();
-    for( auto x: list.list )
-    {
-        cout << x << endl;
-    }
-
-    if( list.list.size() > 0 )
-    {
-        int gameid;
-        cout << "Enter game id to join: ";
-        cin >> gameid;
-        connection.Join(gameid);
-    }
-    else
-    {
-        connection.CreateServer("SERVER0", 2, "MAPNAME", 1, 5);
-    }
-
-    changemode(1);
-    /* MAIN GAME LOOP */
-    while ( !cin.eof() )
-    {
-        if ( kbhit() )
+        if (argc != 3)
         {
-            char c;
-            cin.get(c);
-            if ( c == 27 ) // ESC
-            {
-                cout << "ESCAPE";
-                connection.Leave();
-                break;
-            }
-            if( c == 'g' )
-            {
-                Command c;
-                c.SetType(Command::GO);
-                connection.SendCommand(c);
-            }
-            if(c == 'x' )
-            {
-                Command c;
-                c.SetType(Command::TEXT);
-                connection.SendCommand(c);
-            }
-            cout << "you hit " << c << endl;
-        }
-        if ( connection.Ready() )
-        {
-            connection.ReadPacket();
-            cout << "packet header " << connection.GetHeaderType() << endl;
+            std::cerr << "Usage: <host> <port>\n";
+            return 1;
         }
 
-        std::this_thread::sleep_for (std::chrono::milliseconds(20));
+        Network connection(argv[1], argv[2]);
+        connection.Connect();
+        //connection.Join(0);
+
+
+
+
+        ServerInfoList list = connection.GetServerList();
+        for( auto x: list.list )
+        {
+            cout << x << endl;
+        }
+
+        if( list.list.size() > 0 )
+        {
+            int gameid;
+            cout << "Enter game id to join: ";
+            cin >> gameid;
+            connection.Join(gameid);
+        }
+        else
+        {
+            ServerInfoList list = connection.GetMapList();
+            for( auto x: list.list )
+            {
+                cout << "#- " << x.map << " -#" <<endl;
+            }
+            std::string mapname ;
+            cout << "Enter map name: ";
+            cin >> mapname;
+            connection.CreateServer("SERVER0", 2, mapname, 1, 5);
+        }
+
+        /* server posle staticku mapu */
+        connection.ReadPacket();
+        if (connection.GetHeaderType() != packetHeader::STATIC_MAP )
+        {
+            throw std::runtime_error( "Invalid packet received form server." );
+        }
+        cout << "packet received" << endl;
+        Map map = connection.GetPacketContent<Map>();
+        Map::MapMatrix screenbuffer = map.items;
+        for (auto &row: screenbuffer)
+        {
+            for (auto &column: row)
+            {
+                cout << int(column);
+                cout << " ";
+            }
+            cout << endl;
+        }
+
+        //cin.ignore(INT_MAX);
+        changemode(1);
+        /* MAIN GAME LOOP */
+        while ( !cin.eof() )
+        {
+            if ( kbhit() )
+            {
+                char c;
+                cin.get(c);
+                if ( c == 27 ) // ESC
+                {
+                    cout << "ESCAPE";
+                    connection.Leave();
+                    break;
+                }
+                if( c == 'g' )
+                {
+                    Command c;
+                    c.SetType(Command::GO);
+                    connection.SendCommand(c);
+                }
+                if(c == 'x' )
+                {
+                    Command c;
+                    c.SetType(Command::TEXT);
+                    connection.SendCommand(c);
+                }
+                cout << "you hit " << c << endl;
+            }
+            if ( connection.Ready() )
+            {
+                connection.ReadPacket();
+                cout << "packet header " << connection.GetHeaderType() << endl;
+            }
+
+            std::this_thread::sleep_for (std::chrono::milliseconds(20));
+        }
+        changemode(0);
+    }
+    catch (std::exception& e)
+    {
+        changemode(0);
+        std::cerr << "Exception: " << e.what() << "\n";
     }
     changemode(0);
-
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << "\n";
-    changemode(0);
-  }
-
-  return 0;
+    return 0;
 }
 
 
@@ -115,12 +154,16 @@ int main(int argc, char* argv[])
 
 void changemode(int dir)
 {
-  static struct termios oldt, newt;
+  static struct termios oldt, newt, tmp;
 
-  if ( dir == 1 )
+  if ( dir == -1 )
   {
-    tcgetattr( STDIN_FILENO, &oldt);
-    newt = oldt;
+      tcgetattr( STDIN_FILENO, &oldt);
+  }
+  else if ( dir == 1 )
+  {
+    tcgetattr( STDIN_FILENO, &tmp);
+    newt = tmp;
     newt.c_lflag &= ~( ICANON | ECHO );
     tcsetattr( STDIN_FILENO, TCSANOW, &newt);
   }

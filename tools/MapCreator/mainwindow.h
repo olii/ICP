@@ -40,6 +40,10 @@ private slots:
 
     void on_radioButton_4_clicked();
 
+    void on_radioButton_5_clicked();
+
+    void on_animator_clicked();
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;

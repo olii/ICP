@@ -70,10 +70,17 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="animator">
+        <property name="text">
+         <string>animate</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item row="3" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetMinimumSize</enum>
       </property>
@@ -129,6 +136,13 @@
        <widget class="QRadioButton" name="radioButton_4">
         <property name="text">
          <string>Brana</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_5">
+        <property name="text">
+         <string>Poklad</string>
         </property>
        </widget>
       </item>

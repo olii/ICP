@@ -15,11 +15,8 @@ const QString kluc_base = "://resources/key.png";
 const QString playerSpawn = "://resources/PlayerSpawn.png";
 const QString guardSpawn = "://resources/guard.png";
 const QString door = "://resources/door.png";
+const QString treasure = "://resources/treasure.png";
 
-struct vecStruct{
-    QGraphicsPixmapItem* ptr;
-    int item;
-};
 
 class GView : public QGraphicsView
 {
@@ -34,7 +31,11 @@ public:
     virtual void wheelEvent(QWheelEvent* event);
     virtual void keyReleaseEvent(QKeyEvent *event);
 
+    virtual void mouseDoubleClickEvent(QMouseEvent * event);
+
     void load(StaticMap &t);
+    void savescale();
+    qreal getscale();
 
     QPixmap *podlaha = 0;
     QPixmap *stena = 0;
@@ -42,16 +43,13 @@ public:
     QPixmap *hrac = 0;
     QPixmap *guard = 0;
     QPixmap *brana = 0;
+    QPixmap *finish = 0;
     QSize dimension {1,1};
     int active = 0;
-    QVector< vecStruct > vec;
 
-    float floatx = 0.0;
-    float floaty = 0.0;
+    qreal scale11 = 1.0;
 
     void init();
-
-
 };
 
 #endif // GVIEW_H

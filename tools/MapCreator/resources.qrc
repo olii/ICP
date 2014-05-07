@@ -13,5 +13,7 @@
         <file>resources/door.png</file>
         <file>resources/guard.png</file>
         <file>resources/key.png</file>
+        <file>resources/treasure.png</file>
+        <file>resources/a.png</file>
     </qresource>
 </RCC>

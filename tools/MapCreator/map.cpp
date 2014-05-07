@@ -1,11 +1,6 @@
 #include "map.h"
 #include <QDebug>
 
-Map::Map()
-{
-}
-
-
 StaticMap::StaticMap()
 {
 

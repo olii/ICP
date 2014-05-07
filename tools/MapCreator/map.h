@@ -7,16 +7,6 @@
 
 
 
-class Map
-{
-public:
-    Map();
-
-
-};
-
-
-
 
 class StaticMap
 {

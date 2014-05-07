@@ -9,6 +9,8 @@
 #include <QScrollBar>
 #include "gpixmapitem.h"
 #include "boost/serialization/serialization.hpp"
+#include "mainwindow.h"
+#include <QApplication>
 
 
 
@@ -71,6 +73,23 @@ void GView::mouseMoveEvent(QMouseEvent *event)
             item->setPixmap(*brana);
             item->typ = active;
         }
+        else if ( active == 6 )
+        {
+            QList<QGraphicsItem *> l = scene()->items();
+            for( auto x: l)
+            {
+                GPixmapItem *item = qgraphicsitem_cast<GPixmapItem*>(x);
+                if ( item == 0 )
+                    continue;
+                if(item->typ == 6)
+                {
+                    item->setPixmap(*podlaha);
+                    item->typ = 0;
+                }
+            }
+            item->setPixmap(*finish);
+            item->typ = active;
+        }
         else
         {
             ;
@@ -88,6 +107,7 @@ GView::GView(QWidget *parent) : QGraphicsView(parent)
     hrac = new QPixmap(playerSpawn);
     guard = new QPixmap(guardSpawn);
     brana = new QPixmap(door);
+    finish = new QPixmap(treasure);
 
     //setDragMode(QGraphicsView::ScrollHandDrag);
     setInteractive(false);
@@ -105,7 +125,7 @@ GView::~GView()
 }
 
 void GView::resizeEvent(QResizeEvent *event) {
-    QGraphicsView::resizeEvent(event);
+    //QGraphicsView::resizeEvent(event);
 }
 
 void GView::keyPressEvent(QKeyEvent *event)
@@ -129,6 +149,18 @@ void GView::keyReleaseEvent(QKeyEvent *event)
     else
     {
         QGraphicsView::keyPressEvent(event);
+    }
+}
+
+void GView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(QApplication::activeWindow()->isFullScreen())
+    {
+        QApplication::activeWindow()->showNormal();
+    }
+    else
+    {
+        QApplication::activeWindow()->showFullScreen();
     }
 }
 
@@ -163,38 +195,67 @@ void GView::load(StaticMap &t)
                 case 5:
                     tmp->setPixmap(*brana);
                     break;
+                case 6:
+                    tmp->setPixmap(*finish);
+                    break;
             }
             tmp->typ = t.items[i][j];
             scene()->addItem( tmp );
         }
+
     scene()->setSceneRect(scene()->itemsBoundingRect());
+       /* prisposobenie sceny rozmerom okna */
+       fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
+       savescale();
+
 }
 
+void GView::savescale()
+{
+    scale11 = matrix().m11();
+}
+
+
+qreal GView::getscale()
+{
+    return scale11;
+}
 
 
 
 void GView::init()
 {
-    vec.clear();
     scene()->clear();
-    for( int i = 0; i< dimension.width(); ++i )
+    for( int i = 0; i< dimension.height(); ++i )
     {
-        for ( int j = 0; j < dimension.height(); j++ )
+        for ( int j = 0; j < dimension.width(); j++ )
         {
             GPixmapItem* tmp = new GPixmapItem(*podlaha);
-            tmp->setPos( podlaha->width()*i, podlaha->height()*j);
+            tmp->setPos( podlaha->width()*j, podlaha->height()*i);
             tmp->setToolTip(QString("TEST") + QString::number(i));
             this->scene()->addItem( tmp );
         }
 
     }
-    scene()->setSceneRect(scene()->itemsBoundingRect());
+        scene()->setSceneRect(scene()->itemsBoundingRect());
+       /* prisposobenie sceny rozmerom okna */
+       fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
+       savescale();
+       /* magia, ktora odstranila bug sposobeny volanim fitInView */
+       qreal factor = std::pow(1.001, 120);
+       scale(factor, factor);
+       factor = std::pow(1.001, -120);
+       scale(factor, factor);
+
 }
 
 void GView::wheelEvent(QWheelEvent* event) {
 
     const QPointF p0scene = mapToScene(event->pos());
-    qreal factor = std::pow(1.001, event->delta());
+    qreal factor = std::pow(1.0005, event->delta());
+    /* zvacsovanie a zmensovanie je mozne len v urcitom rozsahu */
+    if (factor * matrix().m11() < scale11 || (matrix().m11() > 1.0 && event->delta() > 0))
+        return;
     scale(factor, factor);
     const QPointF p1mouse = mapFromScene(p0scene);
     const QPointF move = p1mouse - event->pos(); // The move

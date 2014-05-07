@@ -54,9 +54,11 @@ private:
 
     float tickF;
 
+    std::set<int> player_model;
     std::set<boost::shared_ptr<player>> players;
     std::list< std::pair< boost::shared_ptr<player>, Command>  > messageQue;
     boost::asio::deadline_timer timer;
+    int pick_model();
 };
 
 

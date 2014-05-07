@@ -125,6 +125,16 @@ uint32_t player::GetIndex()
     return index_;
 }
 
+void player::SetModel(int id)
+{
+    player_model = id;
+}
+
+int player::GetModel()
+{
+    return player_model;
+}
+
 void player::LeaveServerRequest()
 {
     game.reset();

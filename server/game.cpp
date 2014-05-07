@@ -6,6 +6,7 @@
 #include <set>
 #include <utility>
 #include <boost/bind.hpp>
+#include <random>
 
 using std::set;
 
@@ -20,6 +21,8 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
     this->timeout = timeout;
     this->map = map;
     this->tickF = tick;
+    for ( int i = 0; i<playerModel::COUNT;i++ ) player_model.insert(i);
+
     std::cout << "Game [" << index_ << "  " << this->name << "] constructed" << std::endl;
 }
 
@@ -39,11 +42,12 @@ bool Game::Join( boost::shared_ptr<player> user )
         return false;
     }
     players.insert(user);
+    user->SetModel(pick_model());
     if ( players.size() == 1 )
     {
         Start();
     }
-    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game." << std::endl;
+    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
     user->SendStaticMap(map);
     return true;
 }
@@ -53,6 +57,7 @@ void Game::Leave( boost::shared_ptr<player> user )
     std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] leaving the game." << std::endl;
     players.erase( user );
     RemovePlayerMessage( user );
+    player_model.insert(user->GetModel());
     if ( players.empty() )
     {
         std::cout << "Game [" << index_ <<"]: is empty." << std::endl;
@@ -163,4 +168,17 @@ void Game::RemovePlayerMessage(boost::shared_ptr<player> user)
     {
         return x.first == user;
     });
+}
+
+int Game::pick_model()
+{
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> distribution(0,player_model.size()-1);
+    int offset = distribution(generator);  // generates number
+    auto it = player_model.begin();
+    for (; offset != 0; offset--) it++;
+
+    int retval = *it;
+    player_model.erase(retval);
+    return retval;
 }

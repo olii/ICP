@@ -38,22 +38,28 @@ public:
 
     uint32_t GetIndex();
 
+    void SetModel(int id);
+    int GetModel();
+
     tcp::socket socket_;
 
+    /*Static indexer*/
     static uint32_t index;
 
 
 private:
+    /* GAME releated */
     uint32_t index_;
-    bool shutdown = false;
     boost::shared_ptr < Game > game;
+    bool shutdown = false;
+    int player_model = -1;
 
+
+    /* Network releated */
     uint32_t outheader[2];
     uint32_t inheader[2];
     std::string outdata;
     std::vector<char> indata;
-
-    //bool ProcessSimpleCommand(Co);
 
     void listen(const boost::system::error_code &error);
     void do_read();

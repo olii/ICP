@@ -15,6 +15,10 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <QFileDialog>
+#include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
+#include <QSequentialAnimationGroup>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), timer(this)
 {
@@ -78,16 +82,6 @@ void MainWindow::on_pushButton_clicked()
 
     StaticMap t;
 
-    /*QList<QGraphicsItem *> l = ui->graphicsView->scene()->items();
-    for( auto x: l)
-    {
-        GPixmapItem *item =  qgraphicsitem_cast<GPixmapItem*>(x);
-        if ( item == 0 )
-            return;
-        t.items[item->y()/512][item->x()/512] = static_cast<StaticMap::StaticTypes>(item->typ);
-    }*/
-
-
     std::ifstream ifs(fileName.toStdString());
     boost::archive::text_iarchive ia(ifs);
     ia >> t;
@@ -113,7 +107,6 @@ void MainWindow::on_pushButton_2_clicked()
     }*/
     ui->graphicsView->scene()->clear();
     ui->graphicsView->dimension = QSize( ui->lineEdit->text().toInt(), ui->lineEdit_2->text().toInt() );
-    //ui->graphicsView->resize_textures();
     ui->graphicsView->init();
 
 }
@@ -168,13 +161,36 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
-   Q_UNUSED(event);
-   QString text ;
-   text = "Size of draw area ";
-   text += QString::number(ui->graphicsView->size().width());
-   text += "x";
-   text += QString::number(ui->graphicsView->size().height());
-   ui->statusBar->showMessage(text);
+    Q_UNUSED(event);
+    QString text ;
+    text = "Size of draw area ";
+    text += QString::number(ui->graphicsView->size().width());
+    text += "x";
+    text += QString::number(ui->graphicsView->size().height());
+    ui->statusBar->showMessage(text);
+
+    qreal matrix_ratio;
+    qreal vertical_scrolbar_ratio;
+    qreal horizontal_scrolbar_ratio;
+
+    matrix_ratio = ui->graphicsView->matrix().m11() / ui->graphicsView->getscale();
+
+    horizontal_scrolbar_ratio = ui->graphicsView->horizontalScrollBar()->maximum() ? \
+        static_cast<qreal> (ui->graphicsView->horizontalScrollBar()->value()) /\
+        static_cast<qreal> (ui->graphicsView->horizontalScrollBar()->maximum()) : 0.0;
+
+    vertical_scrolbar_ratio = ui->graphicsView->verticalScrollBar()->maximum() ? \
+        static_cast<qreal> (ui->graphicsView->verticalScrollBar()->value()) /\
+        static_cast<qreal> (ui->graphicsView->verticalScrollBar()->maximum()) : 0.0;
+
+    ui->graphicsView->fitInView(ui->graphicsView->scene()->sceneRect(), Qt::KeepAspectRatio);
+    ui->graphicsView->savescale();
+
+    ui->graphicsView->scale(matrix_ratio, matrix_ratio);
+    ui->graphicsView->horizontalScrollBar()->setValue(\
+        static_cast<int> (ui->graphicsView->horizontalScrollBar()->maximum() * horizontal_scrolbar_ratio + 0.5));
+    ui->graphicsView->verticalScrollBar()->setValue(\
+        static_cast<int> (ui->graphicsView->verticalScrollBar()->maximum() * vertical_scrolbar_ratio + 0.5));
 }
 
 void MainWindow::on_radioButton_podlaha_clicked()
@@ -205,4 +221,69 @@ void MainWindow::on_radioButton_3_clicked()
 void MainWindow::on_radioButton_4_clicked()
 {
     ui->graphicsView->active = 5;
+}
+
+void MainWindow::on_radioButton_5_clicked()
+{
+    ui->graphicsView->active = 6;
+}
+
+
+void MainWindow::on_animator_clicked()
+{
+    QPixmap p("://resources/a.png");
+
+    GPixmapItem *n = new GPixmapItem(p);
+    ui->graphicsView->scene()->addItem(n);
+
+    n->setPos(+1024, 0);
+
+
+    static QGraphicsItem *tmp = ui->graphicsView->scene()->itemAt(513, 1, QTransform());
+    GPixmapItem *ptr = qgraphicsitem_cast<GPixmapItem *>(tmp);
+
+    QPropertyAnimation* anim1 = new QPropertyAnimation(ptr, "pos");
+    anim1->setDuration(1000);
+    anim1->setStartValue(ptr->pos());
+    anim1->setEndValue(ptr->pos()+QPointF(-512, 0));
+    anim1->setEasingCurve(QEasingCurve::OutCirc);
+
+    QPropertyAnimation* anim2 = new QPropertyAnimation(ptr, "zindex");
+    anim2->setDuration(1000);
+    anim2->setStartValue(ptr->getSize());
+    anim2->setEndValue(ptr->getSize()/2);
+    anim2->setEasingCurve(QEasingCurve::OutCirc);
+
+    QParallelAnimationGroup *group1 = new QParallelAnimationGroup;
+    group1->addAnimation(anim1);
+    group1->addAnimation(anim2);
+
+    /**/
+    anim1 = new QPropertyAnimation(ptr, "pos");
+    anim1->setDuration(1000);
+    anim1->setStartValue(ptr->pos()+QPointF(-512, 0));
+    anim1->setEndValue(ptr->pos()+QPointF(-1024, 0));
+    anim1->setEasingCurve(QEasingCurve::InCirc);
+
+    anim2 = new QPropertyAnimation(ptr, "zindex");
+    anim2->setDuration(1000);
+    anim2->setStartValue(ptr->getSize()/2);
+    anim2->setEndValue(ptr->getSize());
+    anim2->setEasingCurve(QEasingCurve::InCirc);
+
+    QParallelAnimationGroup *group2 = new QParallelAnimationGroup;
+    group2->addAnimation(anim1);
+    group2->addAnimation(anim2);
+
+
+    QSequentialAnimationGroup *seq = new QSequentialAnimationGroup;
+    seq->addAnimation(group1);
+    seq->addAnimation(group2);
+    seq->start(QAbstractAnimation::DeleteWhenStopped);
+    seq->setCurrentTime(seq->totalDuration());
+
+
+
+
+
 }

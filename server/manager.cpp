@@ -129,6 +129,11 @@ void Manager::Shutdown()
     database.clear();
 }
 
+int Manager::Random()
+{
+    return distribution(generator);  // generates number
+}
+
 void Manager::AddGame(boost::shared_ptr<Game> newgame)
 {
     database[newgame->GetIndex()] = newgame;
@@ -139,7 +144,7 @@ void Manager::RemoveGame(boost::shared_ptr<Game> oldgame)
     database.erase(oldgame->GetIndex());
 }
 
-Manager::Manager()
+Manager::Manager():distribution(0,playerModel::COUNT)
 {
     cout << "Creating GameManager Singleton" << endl;
 }

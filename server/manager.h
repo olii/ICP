@@ -32,6 +32,7 @@ public:
    ServerInfoList MapList();
    void DestroyGame(boost::shared_ptr< Game > game);
    void Shutdown();
+   int Random();
 
 
 private:
@@ -40,6 +41,9 @@ private:
     void AddGame(boost::shared_ptr<Game> newgame);
     void RemoveGame( boost::shared_ptr< Game > oldgame );
     bool ValidateNewGame(std::string &name, int max, float tick, int timeout, std::string &map );
+
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> distribution;
 
     std::map< std::string,Map > maplist;
 };

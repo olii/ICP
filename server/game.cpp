@@ -172,9 +172,8 @@ void Game::RemovePlayerMessage(boost::shared_ptr<player> user)
 
 int Game::pick_model()
 {
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> distribution(0,player_model.size()-1);
-    int offset = distribution(generator);  // generates number
+    int offset = (Manager::instance().Random())%player_model.size();
+    std::cout << "offset = " << offset << std::endl;
     auto it = player_model.begin();
     for (; offset != 0; offset--) it++;
 

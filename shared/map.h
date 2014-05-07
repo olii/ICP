@@ -11,6 +11,8 @@ class Map
 public:
     enum HeaderCode { CODE = packetHeader::STATIC_MAP }; // mandatory
     Map();
+    void invalidate();
+    bool IsValid();
 
     enum StaticTypes {GRASS = 0, WALL = 1, KEY = 2, PLAYER_SPAWN = 3, GUARD_SPAWN = 4, GATE = 5, FINISH = 6};
     std::vector< std::vector< StaticTypes > > items;
@@ -18,6 +20,7 @@ public:
 
     typedef std::vector< std::vector< StaticTypes > > MapMatrix;
 private:
+    bool isValid;
     /* serializacia */
     friend class boost::serialization::access;
     template<class Archive>

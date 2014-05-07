@@ -30,6 +30,7 @@ public:
    boost::shared_ptr<Game> GetJoinableGame();
    ServerInfoList ServerList();
    ServerInfoList MapList();
+   Map GetMapByName( std::string name );
    void DestroyGame(boost::shared_ptr< Game > game);
    void Shutdown();
    int Random();

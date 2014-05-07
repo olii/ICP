@@ -56,6 +56,17 @@ ServerInfoList Manager::MapList()
     return l;
 }
 
+Map Manager::GetMapByName(std::string name)
+{
+    if (maplist.find(name) != maplist.end() ) // has key
+    {
+        return maplist[name];
+    }
+    Map dummy;
+    dummy.invalidate();
+    return dummy;
+}
+
 void Manager::LoadMapList()
 {
     boost::filesystem::path targetDir("./maps");

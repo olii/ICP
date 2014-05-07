@@ -11,19 +11,23 @@ class Command
 {
 public:
     enum HeaderCode { CODE = packetHeader::COMMAND }; // mandatory
-    enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE  };
+    enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE, GET_MAP  };
 
     Command();
     Command( std::string txt);
     Command( Type typ );
     void SetType( Type typ );
 
-    Type type;
-    uint32_t id;
-    std::string text;
+    uint32_t GetId();
+    void SetId( uint32_t );
+    Type GetType();
+    std::string GetText();
 
 
 private:
+    Type type;
+    uint32_t id;
+    std::string text;
     /* serializacia */
     friend class boost::serialization::access;
     template<class Archive>

@@ -99,6 +99,21 @@ void player::SendMapList()
                               boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
+void player::SendMap(std::string mapname)
+{
+    Map tmp = Manager::instance().GetMapByName(mapname);
+    if (tmp.IsValid())
+    {
+        SendStaticMap(tmp);
+    }
+    else
+    {
+        ErrorMessage("Unable to retrieve map with given name");
+        ErrorShutdown();
+    }
+
+}
+
 void player::ErrorMessage(std::string str)
 {
     Command text(str);
@@ -179,7 +194,6 @@ void player::do_read()
 
 
 void player::handle_header(const boost::system::error_code& error, std::size_t bytes_transferred )
-/* TODO */
 {
     if ( error || bytes_transferred != packetHeader::header_size )
     {
@@ -271,8 +285,8 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
     Command packet;
     Deserialize( packet );
 
-    //enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE  };
-    switch (packet.type)
+    //enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE, GET_MAP  };
+    switch (packet.GetType())
     {
         case Command::JOIN:
         {
@@ -282,11 +296,11 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
                 ErrorShutdown();
                 return;
             }
-            boost::shared_ptr< Game > new_game = Manager::instance().GetGameById(packet.id);
+            boost::shared_ptr< Game > new_game = Manager::instance().GetGameById(packet.GetId());
 
             if(!new_game)
             {
-                ErrorMessage(std::string("No game with id ") + std::to_string(packet.id) );
+                ErrorMessage(std::string("No game with id ") + std::to_string(packet.GetId()) );
                 ErrorShutdown();
                 return;
             }
@@ -343,6 +357,15 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
                 return;
             }
             SendMapList();
+            break;
+        case Command::GET_MAP:
+            if ( IsInGame() )
+            {
+                ErrorMessage("Player is in game. Cannot request maplist.");
+                ErrorShutdown();
+                return;
+            }
+            SendMap(packet.GetText());
             break;
         case Command::ERROR_MESSAGE:
             ErrorMessage("Player is not allowed to sent error message.");

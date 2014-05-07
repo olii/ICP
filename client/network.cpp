@@ -56,7 +56,7 @@ bool Network::Ready()
 void Network::Join( uint32_t id )
 {
     Command t;
-    t.id = id;
+    t.SetId( id);
     t.SetType(Command::JOIN);
 
     SerializedData buffer = Serialize(t, t.HeaderCode::CODE);
@@ -102,9 +102,9 @@ void Network::ReadPacket()
     {
         Command c;
         Deserialize(c);
-        if ( c.type == Command::ERROR_MESSAGE )
+        if ( c.GetType() == Command::ERROR_MESSAGE )
         {
-            throw NetworkException(c.text);
+            throw NetworkException(c.GetText());
         }
     }
 }
@@ -207,7 +207,7 @@ bool Network::Connect()
     Command t;
     Deserialize(t);
 
-    if (t.type != Command::TEXT || t.text != std::string("ICP SERVER 2014 Bludisko\n") )
+    if (t.GetType() != Command::TEXT || t.GetText() != std::string("ICP SERVER 2014 Bludisko\n") )
     {
         Shutdown();
         return false;

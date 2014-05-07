@@ -70,6 +70,7 @@ private:
     void HandleCommand(const boost::system::error_code &error, std::size_t bytes_transferred);
     void SendServerList();
     void SendMapList();
+    void SendMap(std::string mapname);
 
     bool IsInGame();
 

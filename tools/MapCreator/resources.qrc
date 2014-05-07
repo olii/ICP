@@ -15,5 +15,13 @@
         <file>resources/key.png</file>
         <file>resources/treasure.png</file>
         <file>resources/a.png</file>
+        <file>resources/0_1.png</file>
+        <file>resources/1_2.png</file>
+        <file>resources/krabica.jpg</file>
+        <file>resources/iron_texture1049.png</file>
+        <file>resources/ToyFactory_Multi-texturing_tile.png</file>
+        <file>resources/TiZeta_metalGround1.jpg</file>
+        <file>resources/CBE2UVF.jpg</file>
+        <file>resources/floor_tile1wip2.jpg</file>
     </qresource>
 </RCC>

@@ -231,45 +231,47 @@ void MainWindow::on_radioButton_5_clicked()
 
 void MainWindow::on_animator_clicked()
 {
-    QPixmap p("://resources/a.png");
+    QPixmap p("://resources/1_2.png");
 
     GPixmapItem *n = new GPixmapItem(p);
     ui->graphicsView->scene()->addItem(n);
+    n->setToolTip("<h1>PLAYER 23</h1><p>step count: 1500</p>");
 
-    n->setPos(+1024, 0);
+    n->setPos(+1024, +1024);
 
 
-    static QGraphicsItem *tmp = ui->graphicsView->scene()->itemAt(513, 1, QTransform());
-    GPixmapItem *ptr = qgraphicsitem_cast<GPixmapItem *>(tmp);
+    //static QGraphicsItem *tmp = ui->graphicsView->scene()->itemAt(513, 1, QTransform());
+    //GPixmapItem *ptr = qgraphicsitem_cast<GPixmapItem *>(tmp);
+    GPixmapItem *ptr = n;
 
     QPropertyAnimation* anim1 = new QPropertyAnimation(ptr, "pos");
     anim1->setDuration(1000);
     anim1->setStartValue(ptr->pos());
-    anim1->setEndValue(ptr->pos()+QPointF(-512, 0));
-    anim1->setEasingCurve(QEasingCurve::OutCirc);
+    anim1->setEndValue(ptr->pos()+QPointF(-256, 0));
+    anim1->setEasingCurve(QEasingCurve::Linear);
 
     QPropertyAnimation* anim2 = new QPropertyAnimation(ptr, "zindex");
     anim2->setDuration(1000);
     anim2->setStartValue(ptr->getSize());
-    anim2->setEndValue(ptr->getSize()/2);
-    anim2->setEasingCurve(QEasingCurve::OutCirc);
+    anim2->setEndValue(ptr->getSize()*(6.0/5.0));
+    anim2->setEasingCurve(QEasingCurve::Linear);
 
     QParallelAnimationGroup *group1 = new QParallelAnimationGroup;
     group1->addAnimation(anim1);
     group1->addAnimation(anim2);
 
-    /**/
+
     anim1 = new QPropertyAnimation(ptr, "pos");
     anim1->setDuration(1000);
-    anim1->setStartValue(ptr->pos()+QPointF(-512, 0));
-    anim1->setEndValue(ptr->pos()+QPointF(-1024, 0));
-    anim1->setEasingCurve(QEasingCurve::InCirc);
+    anim1->setStartValue(ptr->pos()+QPointF(-256, 0));
+    anim1->setEndValue(ptr->pos()+QPointF(-512, 0));
+    anim1->setEasingCurve(QEasingCurve::Linear);
 
     anim2 = new QPropertyAnimation(ptr, "zindex");
     anim2->setDuration(1000);
-    anim2->setStartValue(ptr->getSize()/2);
+    anim2->setStartValue(ptr->getSize()*(6.0/5.0));
     anim2->setEndValue(ptr->getSize());
-    anim2->setEasingCurve(QEasingCurve::InCirc);
+    anim2->setEasingCurve(QEasingCurve::Linear);
 
     QParallelAnimationGroup *group2 = new QParallelAnimationGroup;
     group2->addAnimation(anim1);
@@ -280,7 +282,8 @@ void MainWindow::on_animator_clicked()
     seq->addAnimation(group1);
     seq->addAnimation(group2);
     seq->start(QAbstractAnimation::DeleteWhenStopped);
-    seq->setCurrentTime(seq->totalDuration());
+
+    //seq->setCurrentTime(seq->totalDuration());
 
 
 

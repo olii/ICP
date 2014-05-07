@@ -9,8 +9,8 @@
 #include "map.h"
 
 
-const QString stena_base = "://resources/wall.png";
-const QString podlaha_base = "://resources/grass.jpg";
+const QString stena_base = "://resources/krabica.jpg";
+const QString podlaha_base = "://resources/floor_tile1wip2.jpg";
 const QString kluc_base = "://resources/key.png";
 const QString playerSpawn = "://resources/PlayerSpawn.png";
 const QString guardSpawn = "://resources/guard.png";

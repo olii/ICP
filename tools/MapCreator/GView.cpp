@@ -138,6 +138,10 @@ void GView::keyPressEvent(QKeyEvent *event)
     {
         QGraphicsView::keyPressEvent(event);
     }
+    if (event->key() == Qt::Key_Escape)
+    {
+        QApplication::activeWindow()->showNormal();
+    }
 }
 
 void GView::keyReleaseEvent(QKeyEvent *event)
@@ -254,7 +258,7 @@ void GView::wheelEvent(QWheelEvent* event) {
     const QPointF p0scene = mapToScene(event->pos());
     qreal factor = std::pow(1.0005, event->delta());
     /* zvacsovanie a zmensovanie je mozne len v urcitom rozsahu */
-    if (factor * matrix().m11() < scale11 || (matrix().m11() > 1.0 && event->delta() > 0))
+    if (factor * matrix().m11() < scale11 - 0.00001 || (matrix().m11() > 1.0 && event->delta() > 0))
         return;
     scale(factor, factor);
     const QPointF p1mouse = mapFromScene(p0scene);

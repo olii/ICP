@@ -4,7 +4,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/bind.hpp>
-#include <vector>
+#include <iterator>     // std::back_inserter
+#include <vector>       // std::vector
+#include <algorithm>    // std::copy
 #include <map>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/system/error_code.hpp>
@@ -50,8 +52,10 @@ void player::start()
     cout << "Player [" << index_ << "] starting with IP = " << socket_.remote_endpoint().address().to_string() << endl;
 
     /* POSLE HELLO PACKET */
+
     Command version("ICP SERVER 2014 Bludisko\n");
-    SerializedData buffers = Serialize(version, version.HeaderCode::CODE);
+    version.SetId(index_);
+    SerializedData buffers = Serialize(version, packetHeader::HELLO);
 
     boost::asio::async_write( socket_, buffers,
         boost::bind( &player::listen, shared_from_this(), boost::asio::placeholders::error ) );
@@ -83,36 +87,19 @@ void player::SendServerList()
 
     ServerInfoList list = Manager::instance().ServerList();
 
-    SerializedData buffers = Serialize(list, list.HeaderCode::CODE);
-
-    boost::asio::async_write( socket_, buffers,
-                              boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+    Serialize(list, list.HeaderCode::CODE);
+    WriteWrapper();
 }
 
 void player::SendMapList()
 {
     ServerInfoList list = Manager::instance().MapList();
 
-    SerializedData buffers = Serialize(list, list.HeaderCode::CODE);
+    Serialize(list, list.HeaderCode::CODE);
 
-    boost::asio::async_write( socket_, buffers,
-                              boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+    WriteWrapper();
 }
 
-void player::SendMap(std::string mapname)
-{
-    Map tmp = Manager::instance().GetMapByName(mapname);
-    if (tmp.IsValid())
-    {
-        SendStaticMap(tmp);
-    }
-    else
-    {
-        ErrorMessage("Unable to retrieve map with given name");
-        ErrorShutdown();
-    }
-
-}
 
 void player::ErrorMessage(std::string str)
 {
@@ -148,6 +135,20 @@ void player::SetModel(int id)
 int player::GetModel()
 {
     return player_model;
+}
+void player::SendMap(std::string mapname)
+{
+    Map tmp = Manager::instance().GetMapByName(mapname);
+    if (tmp.IsValid())
+    {
+        SendStaticMap(tmp);
+    }
+    else
+    {
+        ErrorMessage("Unable to retrieve map with given name");
+        ErrorShutdown();
+    }
+
 }
 
 void player::LeaveServerRequest()
@@ -194,7 +195,9 @@ void player::do_read()
 
 
 void player::handle_header(const boost::system::error_code& error, std::size_t bytes_transferred )
+/* TODO */
 {
+
     if ( error || bytes_transferred != packetHeader::header_size )
     {
         cout << "Player [" << index_ << "] player::listen error=" << error << endl;
@@ -209,6 +212,7 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
     {
         case packetHeader::HELLO:
             inheader[1] = 0;
+
             break;
         case packetHeader::SERVER_LIST:
         {
@@ -259,6 +263,7 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
         default:
             cerr << "Player [" << index_ << "] unknown header '" << inheader[0] << "', shutting down" << endl;
             ErrorShutdown();
+            return;
             break;
     }
 
@@ -285,7 +290,7 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
     Command packet;
     Deserialize( packet );
 
-    //enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE, GET_MAP  };
+    //enum Type { JOIN, LEAVE, TEXT, LEFT, RIGHT, GO, STOP, TAKE, OPEN, MAP_LIST, ERROR_MESSAGE  };
     switch (packet.GetType())
     {
         case Command::JOIN:
@@ -359,14 +364,15 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
             SendMapList();
             break;
         case Command::GET_MAP:
-            if ( IsInGame() )
-            {
-                ErrorMessage("Player is in game. Cannot request maplist.");
-                ErrorShutdown();
-                return;
-            }
-            SendMap(packet.GetText());
-            break;
+                    if ( IsInGame() )
+                    {
+                        ErrorMessage("Player is in game. Cannot request maplist.");
+                        ErrorShutdown();
+                        return;
+                    }
+                    SendMap(packet.GetText());
+                    break;
+
         case Command::ERROR_MESSAGE:
             ErrorMessage("Player is not allowed to sent error message.");
             ErrorShutdown();
@@ -423,6 +429,40 @@ bool player::IsInGame()
 }
 
 
+void player::WriteWrapper()
+{
+    cout << "Player [" << index_ << "] wrapper " << endl;
+    std::vector<char> tmp;
+    tmp.resize( packetHeader::header_size );
+
+    char * ptr = reinterpret_cast<char*>(&outheader[0]);
+    tmp.assign(ptr, ptr+8);
+    char *t = tmp.data();
+    uint32_t *tt = reinterpret_cast<uint32_t*>(t);
+
+    std::cout << "tt = " << *tt <<std::endl;
+    std::cout << "tt[2] = " << tt[1] <<std::endl;
+
+    std::copy(outdata.c_str(), outdata.c_str()+outdata.length(), back_inserter(tmp));
+    std::cout << "message size = " << tmp.size() << std::endl;
+
+    dataQue.push_back( tmp );
+
+    if ( dataQue.size() == 1 )
+    {
+        /* poslem hned */
+        boost::asio::async_write( socket_, boost::asio::buffer( *(dataQue.begin()) ),
+                                  boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+        cout << "Player [" << index_ << "] wrapper send" << endl;
+    }
+    else
+    {
+        /* zaradim na koniec */
+    }
+    cout << "Player [" << index_ << "] wrapper end" << endl;
+}
+
+
 void player::handle_write(const boost::system::error_code& error)
 {
     if (error)
@@ -434,8 +474,20 @@ void player::handle_write(const boost::system::error_code& error)
     }
     cout << "Player [" << index_ << "] message sent" << endl;
 
-    //timer->expires_from_now(boost::posix_time::seconds(1));
-    //timer->async_wait( boost::bind( &player::do_write, shared_from_this(), boost::asio::placeholders::error ) );
+    if( dataQue.size() >=1 )
+    {
+        dataQue.pop_front();
+    }
+
+    if ( dataQue.size() >= 1 )
+    {
+        /* poslem dalsie */
+        boost::asio::async_write( socket_, boost::asio::buffer( *(dataQue.begin()) ),
+                                  boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+        cout << "Player [" << index_ << "] message prepared for sending" << endl;
+    }
+
+    cout << "Player [" << index_ << "] no more jobs" << endl;
 }
 
 

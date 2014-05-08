@@ -86,7 +86,8 @@ void Network::ReadPacket()
     if ( (inheader[0] != packetHeader::SERVER_LIST) &&
          (inheader[0] != packetHeader::COMMAND) &&
          (inheader[0] != packetHeader::STATIC_MAP) &&
-         (inheader[0] != packetHeader::GAME_UPDATE) )
+         (inheader[0] != packetHeader::GAME_UPDATE) &&
+         (inheader[0] != packetHeader::HELLO) )
     {
         throw NetworkException("Network error: Unknown packet header.");
     }
@@ -134,8 +135,8 @@ ServerInfoList Network::GetServerList()
 
 ServerInfoList Network::GetMapList()
 {
-    Command c;
-    c.SetType(Command::MAP_LIST);
+    Command c(Command::MAP_LIST);
+
     SerializedData buffer = Serialize(c, c.HeaderCode::CODE);
 
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
@@ -147,6 +148,26 @@ ServerInfoList Network::GetMapList()
         throw NetworkException("Bad answer from server. Expected map list.");
     }
     ServerInfoList t;
+    Deserialize(t);
+    return t;
+}
+
+Map Network::GetMapByName(std::string name)
+{
+    Command c(name);
+    c.SetType(Command::GET_MAP);
+
+    SerializedData buffer = Serialize(c, c.HeaderCode::CODE);
+
+    boost::asio::write(socket_, buffer, boost::asio::transfer_all());
+
+    ReadPacket();
+
+    if ( GetHeaderType() != packetHeader::STATIC_MAP )
+    {
+        throw NetworkException("Bad answer from server. Expected map .");
+    }
+    Map t;
     Deserialize(t);
     return t;
 }
@@ -165,6 +186,11 @@ void Network::CreateServer(std::string name, unsigned int max, std::string map, 
 
     SerializedData buffer = Serialize(t, t.HeaderCode::CODE);
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
+}
+
+uint32_t Network::GetId()
+{
+    return id;
 }
 
 void Network::SendHello()
@@ -195,8 +221,9 @@ bool Network::Connect()
 
     boost::asio::read(socket_, boost::asio::buffer(inheader), boost::asio::transfer_exactly(packetHeader::header_size) );
 
-    if (inheader[0] != packetHeader::COMMAND )
+    if (inheader[0] != packetHeader::HELLO )
     {
+        // vyhodi vynimku TODO
         Shutdown();
         return false;
     }
@@ -212,6 +239,7 @@ bool Network::Connect()
         Shutdown();
         return false;
     }
+    id = t.GetId();
 
     return true;
 }

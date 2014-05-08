@@ -14,7 +14,7 @@ public:
     void invalidate();
     bool IsValid();
 
-    enum StaticTypes {GRASS = 0, WALL = 1, KEY = 2, PLAYER_SPAWN = 3, GUARD_SPAWN = 4, GATE = 5, FINISH = 6};
+    enum StaticTypes {GRASS = 0, WALL = 1, KEY = 2, PLAYER_SPAWN = 3, GUARD_SPAWN = 4, GATE = 5, FINISH = 6, PLAYER_BASE = 99, PLAYER_A = 100, PLAYER_B, PLAYER_C, PLAYER_D};
     std::vector< std::vector< StaticTypes > > items;
     std::string name;
 
@@ -26,6 +26,62 @@ private:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int /* file_version */){
         ar & items;
+    }
+};
+
+
+class MapItemsInfo
+{
+public:
+    MapItemsInfo();
+    MapItemsInfo(int x, int y, bool optionFlag = false , playerDirection dir = playerDirection::UP, int model = 0, uint32_t id = 0, int keyCount = 0, int steps = 0);
+    uint32_t id; // id
+    int x, y; // suradnice
+    playerDirection dir; // orientacia
+    int keyCount;
+    int steps; // pocet krokov
+    int model;
+
+    bool optionFlag;   // pri brane, ci je otvorena, pri kluci ci je na mape
+
+private:
+    /* serializacia */
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int /* file_version */){
+        ar & x;
+        ar & y;
+        ar & dir;
+        ar & keyCount;
+        ar & steps;
+        ar & model;
+    }
+};
+
+/*kontajner nad polozkami mapy*/
+class MapUpdate
+{
+public:
+    enum HeaderCode { CODE = packetHeader::GAME_UPDATE }; // mandatory
+    MapUpdate();
+
+    std::vector< MapItemsInfo > players;
+    std::vector< MapItemsInfo > guards;
+    std::vector< MapItemsInfo > keys;
+    std::vector< MapItemsInfo > gates;
+    MapItemsInfo treasure;
+
+private:
+
+    /* serializacia */
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int /* file_version */){
+        ar & players;
+        ar & guards;
+        ar & keys;
+        ar & gates;
+        ar & treasure;
     }
 };
 

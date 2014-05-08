@@ -155,7 +155,7 @@ void Manager::RemoveGame(boost::shared_ptr<Game> oldgame)
     database.erase(oldgame->GetIndex());
 }
 
-Manager::Manager():distribution(0,playerModel::COUNT)
+Manager::Manager():distribution(0,1000)
 {
     cout << "Creating GameManager Singleton" << endl;
 }

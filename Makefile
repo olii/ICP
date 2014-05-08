@@ -1,6 +1,6 @@
 FLAGS = -std=c++11 -g3 -pedantic -Wall -Wextra
 # FLAGS = -std=c++11 -O2
-LINKERF = -lboost_system-mt -lboost_thread-mt -lboost_serialization-mt -lboost_filesystem
+LINKERF = -lboost_system -lboost_serialization -lboost_filesystem
 
 #-O2 -static-libstdc++ -pthread
 CXX = g++-4.9
@@ -20,7 +20,7 @@ server-bin: $(SERVEROBJ) $(SHAREDOBJ)
 	$(CXX) $(FLAGS) $(LINKERF) $^ -o $@
        
 client-bin: $(CLIENTOBJ) $(SHAREDOBJ)
-	$(CXX) $(FLAGS) $(LINKERF) $^ -o $@  
+	$(CXX) $(FLAGS) -pthread $(LINKERF) $^ -o $@  
 	
 	
 -include Makefile.deps

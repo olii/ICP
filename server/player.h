@@ -6,6 +6,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/bind.hpp>
 #include <vector>
+#include <list>
 #include <map>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "game.h"
@@ -47,6 +48,13 @@ public:
     static uint32_t index;
 
 
+    /* GAME INFO */
+    int x, y;
+    bool alive;
+    int keys;
+    int steps;
+
+
 private:
     /* GAME releated */
     uint32_t index_;
@@ -60,6 +68,7 @@ private:
     uint32_t inheader[2];
     std::string outdata;
     std::vector<char> indata;
+    std::list< std::vector<char> > dataQue;
 
     void listen(const boost::system::error_code &error);
     void do_read();
@@ -79,6 +88,7 @@ private:
 
     typedef std::vector<boost::asio::const_buffer> SerializedData;
 
+    void WriteWrapper();
     template<class T, typename C>
     SerializedData Serialize( const T&, C code );
     template <class T>

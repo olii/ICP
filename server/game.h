@@ -10,11 +10,15 @@
 #include "player.h"
 #include "../shared/command.h"
 #include "../shared/map.h"
-
+#include <utility>
 
 
 
 extern boost::asio::io_service io_service;
+
+typedef std::pair<uint, uint> Point;
+
+
 class player;
 
 class Game: public boost::enable_shared_from_this<Game>
@@ -50,13 +54,18 @@ private:
     uint maxPlayers;
     boost::posix_time::time_duration tick;
     int timeout;
-    Map map;
+    Map map_original;
+    Map::MapMatrix matrix;
+
+    MapUpdate updatePacket;
 
     float tickF;
 
     std::set<int> player_model;
     std::set<boost::shared_ptr<player>> players;
     std::list< std::pair< boost::shared_ptr<player>, Command>  > messageQue;
+    std::vector<Point> playerSpawn;
+    std::vector<Point> guardSpawn;
     boost::asio::deadline_timer timer;
     int pick_model();
 };

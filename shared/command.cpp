@@ -16,11 +16,12 @@ Command::Command(Command::Type typ )
 {
     type = typ;
     text.clear();
+    id = 0;
 }
 
 void Command::SetType(Command::Type typ)
 {
-    type = typ;
+    this->type = typ;
 }
 
 uint32_t Command::GetId()

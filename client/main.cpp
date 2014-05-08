@@ -60,7 +60,6 @@ int main(int argc, char* argv[])
         {
             cout << x << endl;
         }
-
         if( list.list.size() > 0 )
         {
             int gameid;
@@ -81,6 +80,7 @@ int main(int argc, char* argv[])
             connection.CreateServer("SERVER0", 2, mapname, 1, 5);
         }
 
+
         /* server posle staticku mapu */
         connection.ReadPacket();
         if (connection.GetHeaderType() != packetHeader::STATIC_MAP )
@@ -88,14 +88,38 @@ int main(int argc, char* argv[])
             throw std::runtime_error( "Invalid packet received form server." );
         }
         cout << "packet received" << endl;
+
         Map map = connection.GetPacketContent<Map>();
+
         Map::MapMatrix screenbuffer = map.items;
         for (auto &row: screenbuffer)
         {
             for (auto &column: row)
             {
-                cout << int(column);
-                cout << " ";
+                switch(column)
+                {
+                    case Map::GRASS:
+                        cout<<"░";
+                        break;
+                    case Map::WALL:
+                        cout << "█";
+                        break;
+                    case Map::GATE:
+                        cout << 'G';
+                        break;
+                    case Map::KEY:
+                        cout << 'K';
+                        break;
+                    case Map::GUARD_SPAWN:
+                    case Map::PLAYER_SPAWN:
+                        cout<<"░";
+                        break;
+                    case Map::FINISH:
+                        cout << 'F';
+                        break;
+                    default:
+                        break;
+                }
             }
             cout << endl;
         }

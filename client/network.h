@@ -27,6 +27,9 @@ public:
     ServerInfoList GetServerList();
     ServerInfoList GetMapList();
     void CreateServer(std::string name, unsigned int max, std::string map, float timer, int timeout);
+    Map GetMapByName(std::string name);
+
+    uint32_t GetId();
 
     template<class T>
     T GetPacketContent()
@@ -42,6 +45,8 @@ private:
     std::string port;
     tcp::socket socket_;
     bool failbit;
+
+    uint32_t id;
 
     uint32_t outheader[2];
     uint32_t inheader[2];

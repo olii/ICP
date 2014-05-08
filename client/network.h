@@ -26,6 +26,9 @@ public:
     packetHeader GetHeaderType();
     ServerInfoList GetServerList();
     ServerInfoList GetMapList();
+    MapUpdate GetMapUpdate();
+
+
     void CreateServer(std::string name, unsigned int max, std::string map, float timer, int timeout);
     Map GetMapByName(std::string name);
 

@@ -36,6 +36,7 @@ public:
     void LeaveServerRequest();
     void SendString( std::string str);
     void SendStaticMap(Map &map);
+    void SendMapUpdate( MapUpdate &update );
 
     uint32_t GetIndex();
 

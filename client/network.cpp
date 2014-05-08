@@ -152,6 +152,18 @@ ServerInfoList Network::GetMapList()
     return t;
 }
 
+MapUpdate Network::GetMapUpdate()
+{
+    ReadPacket();
+    MapUpdate t;
+    if ( GetHeaderType() != packetHeader::GAME_UPDATE )
+    {
+        throw NetworkException("Bad answer from server. Expected update packet.");
+    }
+    Deserialize(t);
+    return t;
+}
+
 Map Network::GetMapByName(std::string name)
 {
     Command c(name);

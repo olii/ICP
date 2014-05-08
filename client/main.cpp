@@ -90,8 +90,32 @@ int main(int argc, char* argv[])
         cout << "packet received" << endl;
 
         Map map = connection.GetPacketContent<Map>();
+        Map::MapMatrix background = map.items;
+        for (auto &row: background)
+        {
+            for (auto &column: row)
+            {
+                switch(column)
+                {
+                    case Map::GRASS:
+                    case Map::WALL:
+                        break;
+                    default:
+                        column = Map::GRASS;
+                        break;
+                }
+            }
+        }
 
-        Map::MapMatrix screenbuffer = map.items;
+        MapUpdate updatepacket = connection.GetMapUpdate();
+        Map::MapMatrix screenbuffer = background;
+        for ( auto item: updatepacket.players )
+        {
+            screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE );
+        }
+
+
+
         for (auto &row: screenbuffer)
         {
             for (auto &column: row)
@@ -110,13 +134,11 @@ int main(int argc, char* argv[])
                     case Map::KEY:
                         cout << 'K';
                         break;
-                    case Map::GUARD_SPAWN:
-                    case Map::PLAYER_SPAWN:
-                        cout<<"░";
-                        break;
                     case Map::FINISH:
                         cout << 'F';
                         break;
+                    case Map::PLAYER_BASE:
+                        cout << 'P';
                     default:
                         break;
                 }
@@ -156,7 +178,67 @@ int main(int argc, char* argv[])
             if ( connection.Ready() )
             {
                 connection.ReadPacket();
-                cout << "packet header " << connection.GetHeaderType() << endl;
+                if( connection.GetHeaderType() == packetHeader::COMMAND )
+                {
+                    Command c = connection.GetPacketContent<Command>();
+
+                    if( c.GetType() == Command::TEXT )
+                    {
+                        cout << c.GetText() << endl;
+                    }
+                    else
+                    {
+                        cout << "Received packet different than text or gameupdate";
+                    }
+                }
+                else if ( connection.GetHeaderType() == packetHeader::GAME_UPDATE  )
+                {
+                    MapUpdate updatepacket = connection.GetPacketContent<MapUpdate>();
+                    Map::MapMatrix screenbuffer = background;
+                    for ( auto item: updatepacket.players )
+                    {
+                        screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE );
+                    }
+
+
+
+                    for (auto &row: screenbuffer)
+                    {
+                        for (auto &column: row)
+                        {
+                            switch(column)
+                            {
+                                case Map::GRASS:
+                                    cout<<"░";
+                                    break;
+                                case Map::WALL:
+                                    cout << "█";
+                                    break;
+                                case Map::GATE:
+                                    cout << 'G';
+                                    break;
+                                case Map::KEY:
+                                    cout << 'K';
+                                    break;
+                                case Map::FINISH:
+                                    cout << 'F';
+                                    break;
+                                case Map::PLAYER_BASE:
+                                    cout << 'P';
+                                default:
+                                    break;
+                            }
+                        }
+                        cout << endl;
+                    }
+                    cout << endl;
+                    static int i=0;
+                    cout << i++ <<endl;
+                }
+                else
+                {
+                    cout << "Unknown packet header " << connection.GetHeaderType() << endl;
+                }
             }
 
             std::this_thread::sleep_for (std::chrono::milliseconds(20));

@@ -36,6 +36,12 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
     MapItemsInfo treasure;
     */
 
+    updatePacket.players.clear();
+    updatePacket.guards.clear();
+    updatePacket.keys.clear();
+    updatePacket.gates.clear();
+    updatePacket.treasure = MapItemsInfo(0,0);
+
     //    enum StaticTypes {GRASS = 0, WALL = 1, KEY = 2, PLAYER_SPAWN = 3, GUARD_SPAWN = 4, GATE = 5, FINISH = 6, PLAYER_BASE = 99, PLAYER_A = 100, PLAYER_B, PLAYER_C, PLAYER_D};
     for( uint i =0; i<matrix.size();++i )
     {
@@ -52,6 +58,7 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
                 {
                     Point tmp = std::make_pair(uint(i), uint(j));
                     playerSpawn.push_back( tmp );
+                    matrix[i][j] = Map::GRASS;
                     break;
                 }
                 case Map::KEY:
@@ -60,6 +67,7 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
                     break;
                 case Map::GUARD_SPAWN:
                     guardSpawn.push_back( std::make_pair(i, j) );
+                    matrix[i][j] = Map::GRASS;
                     break;
                 case Map::FINISH:
                     updatePacket.treasure = MapItemsInfo(i, j);
@@ -101,7 +109,38 @@ bool Game::Join( boost::shared_ptr<player> user )
     }
     std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
     user->SendStaticMap(map_original);
-    /* send initial map update */
+    /* find player spawn */
+    Point clientSpawn = std::make_pair( 9999,9999 );
+    for( auto spawnPos: playerSpawn)
+    {
+        if ( matrix[spawnPos.first][spawnPos.second] == Map::GRASS )
+        {
+            clientSpawn = spawnPos;
+            break;
+        }
+    }
+    if( clientSpawn.first != 9999 && clientSpawn.second != 9999 )
+    {
+        user->x = clientSpawn.first;
+        user->y = clientSpawn.second;
+        user->alive = true;
+        user->keys = 0;
+        user->steps = 0;
+        matrix[clientSpawn.first][clientSpawn.second] = static_cast<Map::StaticTypes>(Map::PLAYER_BASE + players.size());
+
+        /* data este do update packetu */
+
+        MapItemsInfo p(user->x, user->y,true, playerDirection::UP,user->GetModel(),user->GetIndex(), user->keys, user->steps );
+        updatePacket.players.push_back(p);
+    }
+    else
+    {
+        std::cout << "TODO!!!!!!!!!!!!!!!!!! Spawn not found" << std::endl;
+        Leave(user);
+        return false;
+    }
+    /* send initial map update to all */
+    Dispatch();
 
     return true;
 }
@@ -112,11 +151,28 @@ void Game::Leave( boost::shared_ptr<player> user )
     players.erase( user );
     RemovePlayerMessage( user );
     player_model.insert(user->GetModel());
+
+    std::vector<MapItemsInfo>::iterator it;
+    for (it = updatePacket.players.begin() ; it != updatePacket.players.end(); ++it)
+    {
+        if( it->id == user->GetIndex() )
+        {
+            break;
+        }
+    }
+    updatePacket.players.erase(it);
+    matrix[user->x][user->y] = Map::GRASS;
+
+
     if ( players.empty() )
     {
         std::cout << "Game [" << index_ <<"]: is empty." << std::endl;
         timer.cancel();
         Manager::instance().DestroyGame(shared_from_this());
+    }
+    else
+    {
+        Dispatch();
     }
 }
 
@@ -202,17 +258,26 @@ void Game::GameLoop(const boost::system::error_code &error)
         /* TODO ukoncit server bepecne -- ASI HOTOVO*/
     }
     std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
+    //SendTextToAll( "THIS IS LONG STRING" );
     Dispatch();
 
     timer.expires_at(timer.expires_at() + tick);
     timer.async_wait( boost::bind( &Game::GameLoop, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
+void Game::SendTextToAll(  std::string text)
+{
+    for( auto x: players )
+    {
+        x->SendString( text );
+    }
+}
+
 void Game::Dispatch()
 {
     for( auto x: players )
     {
-        x->SendString( "This is Tick-Tock\r\n" );
+        x->SendMapUpdate( updatePacket );
     }
 }
 

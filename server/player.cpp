@@ -160,18 +160,20 @@ void player::LeaveServerRequest()
 void player::SendString( std::string str )
 {
     Command text(str);
-    SerializedData buffers = Serialize(text, text.HeaderCode::CODE);
-
-    boost::asio::async_write( socket_, buffers ,
-                              boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+    Serialize(text, text.HeaderCode::CODE);
+    WriteWrapper();
 }
 
 void player::SendStaticMap(Map &map)
 {
-    SerializedData buffers = Serialize(map, map.HeaderCode::CODE);
+    Serialize(map, map.HeaderCode::CODE);
+    WriteWrapper();
+}
 
-    boost::asio::async_write( socket_, buffers ,
-                              boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
+void player::SendMapUpdate(MapUpdate &update)
+{
+    Serialize(update, update.HeaderCode::CODE);
+    WriteWrapper();
 }
 
 
@@ -431,20 +433,13 @@ bool player::IsInGame()
 
 void player::WriteWrapper()
 {
-    cout << "Player [" << index_ << "] wrapper " << endl;
     std::vector<char> tmp;
     tmp.resize( packetHeader::header_size );
 
     char * ptr = reinterpret_cast<char*>(&outheader[0]);
     tmp.assign(ptr, ptr+8);
-    char *t = tmp.data();
-    uint32_t *tt = reinterpret_cast<uint32_t*>(t);
-
-    std::cout << "tt = " << *tt <<std::endl;
-    std::cout << "tt[2] = " << tt[1] <<std::endl;
 
     std::copy(outdata.c_str(), outdata.c_str()+outdata.length(), back_inserter(tmp));
-    std::cout << "message size = " << tmp.size() << std::endl;
 
     dataQue.push_back( tmp );
 
@@ -453,13 +448,11 @@ void player::WriteWrapper()
         /* poslem hned */
         boost::asio::async_write( socket_, boost::asio::buffer( *(dataQue.begin()) ),
                                   boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
-        cout << "Player [" << index_ << "] wrapper send" << endl;
     }
     else
     {
         /* zaradim na koniec */
     }
-    cout << "Player [" << index_ << "] wrapper end" << endl;
 }
 
 
@@ -472,7 +465,6 @@ void player::handle_write(const boost::system::error_code& error)
         return;
 
     }
-    cout << "Player [" << index_ << "] message sent" << endl;
 
     if( dataQue.size() >=1 )
     {
@@ -484,10 +476,10 @@ void player::handle_write(const boost::system::error_code& error)
         /* poslem dalsie */
         boost::asio::async_write( socket_, boost::asio::buffer( *(dataQue.begin()) ),
                                   boost::bind( &player::handle_write, shared_from_this(), boost::asio::placeholders::error ) );
-        cout << "Player [" << index_ << "] message prepared for sending" << endl;
     }
-
-    cout << "Player [" << index_ << "] no more jobs" << endl;
+    else
+    {
+    }
 }
 
 

@@ -46,6 +46,7 @@ public:
 
     static uint32_t index;
 private:
+    void SendTextToAll(std::string);
     void Dispatch();
     void RemovePlayerMessage(boost::shared_ptr<player> user);
 

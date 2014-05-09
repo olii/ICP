@@ -59,7 +59,7 @@ void Network::Join( uint32_t id )
     t.SetId( id);
     t.SetType(Command::JOIN);
 
-    SerializedData buffer = Serialize(t, t.HeaderCode::CODE);
+    SerializedData buffer = Serialize(t, Command::CODE);
 
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
 }
@@ -69,14 +69,14 @@ void Network::Leave()
     Command t;
     t.SetType(Command::LEAVE);
 
-    SerializedData buffer = Serialize(t, t.HeaderCode::CODE);
+    SerializedData buffer = Serialize(t, Command::CODE);
 
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
 }
 
 void Network::SendCommand(Command &c)
 {
-    SerializedData buffer = Serialize(c, c.HeaderCode::CODE);
+    SerializedData buffer = Serialize(c, Command::CODE);
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
 }
 
@@ -137,7 +137,7 @@ ServerInfoList Network::GetMapList()
 {
     Command c(Command::MAP_LIST);
 
-    SerializedData buffer = Serialize(c, c.HeaderCode::CODE);
+    SerializedData buffer = Serialize(c, Command::CODE);
 
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
 
@@ -169,7 +169,7 @@ Map Network::GetMapByName(std::string name)
     Command c(name);
     c.SetType(Command::GET_MAP);
 
-    SerializedData buffer = Serialize(c, c.HeaderCode::CODE);
+    SerializedData buffer = Serialize(c, Command::CODE);
 
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
 
@@ -196,7 +196,7 @@ void Network::CreateServer(std::string name, unsigned int max, std::string map, 
     t.newServer.id = 0;
     t.newServer.playing = 0;
 
-    SerializedData buffer = Serialize(t, t.HeaderCode::CODE);
+    SerializedData buffer = Serialize(t, ServerInfoCreate::CODE);
     boost::asio::write(socket_, buffer, boost::asio::transfer_all());
 }
 

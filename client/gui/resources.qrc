@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/33usewk.png</file>
+        <file>resources/076814-antique-glowing-copper-orb-icon-business-key2.png</file>
+        <file>resources/brixbug.png</file>
+        <file>resources/cervena.png</file>
+        <file>resources/door.png</file>
+        <file>resources/gate.jpg</file>
+        <file>resources/grass.jpg</file>
+        <file>resources/ground.jpg</file>
+        <file>resources/guard.png</file>
+        <file>resources/key.png</file>
+        <file>resources/kluc.png</file>
+        <file>resources/kluc2.png</file>
+        <file>resources/PlayerSpawn.png</file>
+        <file>resources/podlaha.png</file>
+        <file>resources/wall.png</file>
+        <file>resources/Wood-Door-7013AT.jpg</file>
+        <file>resources/krabica.jpg</file>
+        <file>resources/ToyFactory_Multi-texturing_tile.png</file>
+    </qresource>
+</RCC>

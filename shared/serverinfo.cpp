@@ -1,5 +1,4 @@
 #include "serverinfo.h"
-#include "../server/manager.h"
 
 #include <string>
 #include <ostream>

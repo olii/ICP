@@ -6,11 +6,11 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-#include "../shared/global.h"
-#include "../shared/command.h"
-#include "../shared/serverinfo.h"
-#include "../shared/map.h"
-#include "network.h"
+#include "../../shared/global.h"
+#include "../../shared/command.h"
+#include "../../shared/serverinfo.h"
+#include "../../shared/map.h"
+#include "../network.h"
 
 
 #include <stdio.h>

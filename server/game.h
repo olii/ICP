@@ -16,7 +16,7 @@
 
 extern boost::asio::io_service io_service;
 
-typedef std::pair<uint, uint> Point;
+typedef std::pair<unsigned int, unsigned int> Point;
 
 
 class player;

@@ -50,7 +50,8 @@ private:
     void SendTextToAll(std::string);
     void Dispatch();
     void RemovePlayerMessage(boost::shared_ptr<player> user);
-     void WaitLoop(const boost::system::error_code &error);
+    void WaitLoop(const boost::system::error_code &error);
+    std::vector<MapItemsInfo>::iterator IsItem(int x, int y, std::vector<MapItemsInfo> &where );
 
     uint32_t index_;
     std::string name;
@@ -71,6 +72,7 @@ private:
     std::vector<Point> guardSpawn;
     boost::asio::deadline_timer timer;
     int pick_model();
+    Point GetNextPosition(boost::shared_ptr<player> user);
 };
 
 

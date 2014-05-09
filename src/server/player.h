@@ -55,6 +55,7 @@ public:
     int keys;
     int steps;
     playerDirection dir;
+    bool encounteredKey;
 
 
 private:

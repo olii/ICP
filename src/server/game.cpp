@@ -24,7 +24,6 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
     this->tickF = tick;
     for ( int i = 0; i<playerModel::COUNT;i++ ) player_model.insert(i); // dostupne modely
 
-    std::cout << "Game [" << index_ << "  " << this->name << "] constructed" << std::endl;
     matrix = map.items;
 
 
@@ -47,12 +46,13 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
     {
         for( uint j=0; j<matrix[i].size();++j)
         {
-            switch (matrix[i][j]) {
+            switch (matrix[i][j])
+            {
                 case Map::GRASS:
                 case Map::WALL:
                     break;
                 case Map::GATE:
-                    updatePacket.guards.push_back( MapItemsInfo( i,j, true ) );
+                    updatePacket.gates.push_back( MapItemsInfo( i,j, true ) );
                     break;
                 case Map::PLAYER_SPAWN:
                 {
@@ -79,6 +79,7 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
         }
     }
     messageQue.clear();
+    std::cout << "Game [" << index_ << "  " << this->name << "] constructed" << std::endl;
 }
 
 Game::~Game()
@@ -102,6 +103,7 @@ bool Game::Join( boost::shared_ptr<player> user )
     user->alive = true;
     user->keys = 0;
     user->dir = static_cast<playerDirection>(Manager::instance().Random() % 4); // nahodne smer
+    user->encounteredKey = 0;
     /* spawn position genetate */
 
     user->SetModel(pick_model());
@@ -138,7 +140,7 @@ bool Game::Join( boost::shared_ptr<player> user )
     /* send initial map update to all */
     Dispatch();
 
-    if ( players.size() == 1 )
+    if ( players.size() == 1 ) // run the timer
     {
         Start();
     }
@@ -199,6 +201,56 @@ void Game::GameMessage(boost::shared_ptr<player> user, Command c)
             RemovePlayerMessage(user);
             messageQue.emplace_back( user, c );
             break;
+
+        case Command::TAKE:
+        {
+            Point new_coord = GetNextPosition( user );
+            auto is_key = IsItem( new_coord.first, new_coord.second, updatePacket.keys );
+            if( is_key != updatePacket.keys.end() )
+            {
+                updatePacket.keys.erase(is_key);
+                user->keys += 1;
+                user->encounteredKey = false; // turn of stopper
+                Dispatch();
+            }
+            else
+            {
+                user->SendString("There is no key you can take.");
+            }
+            break;
+        }
+        case Command::OPEN:
+        {
+            Point new_coord = GetNextPosition( user );
+            try
+            {
+                if ( matrix.at(new_coord.first).at(new_coord.second) == Map::GATE )
+                {
+                    if ( user->keys <= 0 )
+                    {
+                        user->SendString("You have no keys left.");
+                        break;
+                    }
+                    else
+                    {
+                        matrix[new_coord.first][new_coord.second] = Map::GRASS; // remove from map
+                        auto gate_iter = IsItem( new_coord.first, new_coord.second, updatePacket.gates );
+                        gate_iter->optionFlag = false; // set as open
+                        user->keys -= 1;
+                        Dispatch();
+                    }
+                }
+                else
+                {
+                    user->SendString("There is no gate you can open.");
+                }
+            }
+            catch (const std::out_of_range& )
+            {
+                user->SendString("There is no gate you can open.");
+            }
+            break;
+        }
 
         default:
             break;
@@ -320,51 +372,53 @@ void Game::GameLoop(const boost::system::error_code &error)
     it = messageQue.begin();
     while (it != messageQue.end())
     {
-        Point new_coord = std::make_pair( it->first->x, it->first->y );
-        switch (it->first->dir)
-        {
-            case playerDirection::UP:
-                new_coord.first -= 1;
-                break;
-            case playerDirection::RIGHT:
-                new_coord.second += 1;
-                break;
-            case playerDirection::DOWN:
-                new_coord.first += 1;
-                break;
-            case playerDirection::LEFT:
-                new_coord.second -= 1;
-                break;
-            default:
-                break;
-        }
-        //cout << "previous pos = " << it->first->x << ","<< it->first->y << std::endl;
-        //cout << "new pos = " << new_coord.first << ","<< new_coord.second << std::endl;
+        Point new_coord = GetNextPosition( it->first );
+
         try
         {
-            if ( matrix.at(new_coord.first).at(new_coord.second) == Map::GRASS )
+            if ( IsItem( new_coord.first, new_coord.second, updatePacket.keys ) != updatePacket.keys.end() ) // new position has key
+            {
+                // player was already stopped on key, he wandted to move, so move him
+                if ( it->first->encounteredKey == true )
+                {
+                    matrix[it->first->x][it->first->y] = Map::GRASS;
+                    matrix[new_coord.first][new_coord.second] = Map::PLAYER_BASE;
+                    it->first->x = new_coord.first;
+                    it->first->y = new_coord.second;
+                    it->first->steps += 1;
+                    it->first->encounteredKey = false;
+                    it++;
+                }
+                else
+                {
+                    // he just encountered key on the map, stop him
+                    it->first->encounteredKey = true;
+                    messageQue.erase(it++);
+                }
+
+            }
+            else if ( matrix.at(new_coord.first).at(new_coord.second) == Map::GRASS )
             {
                 matrix[it->first->x][it->first->y] = Map::GRASS;
                 matrix[new_coord.first][new_coord.second] = Map::PLAYER_BASE;
                 it->first->x = new_coord.first;
                 it->first->y = new_coord.second;
                 it->first->steps += 1;
+                it++;
             }
             else
             {
                 messageQue.erase(it++);
             }
         }
-        catch (const std::out_of_range& oor)
+        catch (const std::out_of_range& )
         {
-            std::cout << "Out of Range error: " << oor.what() << '\n';
             messageQue.erase(it++);
         }
-        it++;
     }
 
     /* do AI*/
-
+    //std::cout << "num of keys" << updatePacket.keys.size() <<std::endl;
 
 
     //SendTextToAll( "THIS IS LONG STRING" );
@@ -414,4 +468,33 @@ int Game::pick_model()
     int retval = *it;
     player_model.erase(retval);
     return retval;
+}
+
+
+std::vector<MapItemsInfo>::iterator Game::IsItem(int x, int y, std::vector<MapItemsInfo> &where )
+{
+    return find_if(where.begin(), where.end(), [x, y] (const MapItemsInfo &s) { return (s.x  == x && s.y == y); } );
+}
+
+Point Game::GetNextPosition( boost::shared_ptr<player> user )
+{
+    Point new_coord = std::make_pair( user->x, user->y );
+    switch (user->dir)
+    {
+        case playerDirection::UP:
+            new_coord.first -= 1;
+            break;
+        case playerDirection::RIGHT:
+            new_coord.second += 1;
+            break;
+        case playerDirection::DOWN:
+            new_coord.first += 1;
+            break;
+        case playerDirection::LEFT:
+            new_coord.second -= 1;
+            break;
+        default:
+            break;
+    }
+    return new_coord;
 }

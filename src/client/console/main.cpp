@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
             std::string mapname ;
             cout << "Enter map name: ";
             cin >> mapname;
-            connection.CreateServer("SERVER0", 2, mapname, 0.5, 10);
+            connection.CreateServer("SERVER0", 2, mapname, 0.5, 3);
         }
 
 
@@ -188,6 +188,18 @@ int main(int argc, char* argv[])
                     c.SetType(Command::RIGHT);
                     connection.SendCommand(c);
                 }
+                if( c == 'e' )
+                {
+                    Command c;
+                    c.SetType(Command::TAKE);
+                    connection.SendCommand(c);
+                }
+                if( c == 'q' )
+                {
+                    Command c;
+                    c.SetType(Command::OPEN);
+                    connection.SendCommand(c);
+                }
             }
             if ( connection.Ready() )
             {
@@ -209,10 +221,29 @@ int main(int argc, char* argv[])
                 {
                     MapUpdate updatepacket = connection.GetPacketContent<MapUpdate>();
                     Map::MapMatrix screenbuffer = background;
+                    for ( auto item: updatepacket.gates )
+                    {
+                        if ( item.optionFlag == false )
+                        {
+                            screenbuffer[item.x][item.y] = Map::GATE;
+                        }
+                        else
+                        {
+                            screenbuffer[item.x][item.y] = Map::GATE_OPEN;
+                        }
+                    }
+                    for ( auto item: updatepacket.keys )
+                    {
+                        if ( item.optionFlag == true )
+                        {
+                            screenbuffer[item.x][item.y] = Map::KEY;
+                        }
+                    }
                     for ( auto item: updatepacket.players )
                     {
                         screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE + item.dir);
                     }
+                    screenbuffer[updatepacket.treasure.x][updatepacket.treasure.y] = Map::FINISH;
 
 
 
@@ -223,19 +254,22 @@ int main(int argc, char* argv[])
                             switch(column)
                             {
                                 case Map::GRASS:
-                                    cout<<"░";
+                                    cout<<" ";
                                     break;
                                 case Map::WALL:
                                     cout << "█";
                                     break;
                                 case Map::GATE:
-                                    cout << "☰";
+                                    cout << "G";
+                                    break;
+                                case Map::GATE_OPEN:
+                                    cout << "░";
                                     break;
                                 case Map::KEY:
-                                    cout << "☉";
+                                    cout << "K";
                                     break;
                                 case Map::FINISH:
-                                    cout << "★";
+                                    cout << "F";
                                     break;
                                 case static_cast<Map::StaticTypes>( Map::PLAYER_BASE + 0):
                                     cout << "↑";
@@ -265,7 +299,7 @@ int main(int argc, char* argv[])
                 }
             }
 
-            std::this_thread::sleep_for (std::chrono::milliseconds(20));
+            std::this_thread::sleep_for (std::chrono::milliseconds(10));
         }
         changemode(0);
     }

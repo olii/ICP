@@ -20,7 +20,5 @@
 *.out
 *.app
 
-Makefile.deps
-*-bin
-
-icp-proj.*
+src/Makefile.deps
+src/icp-proj.*

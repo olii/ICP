@@ -17,7 +17,7 @@ all: Makefile.deps server-bin client-bin
 	$(CXX) $(FLAGS) -c $*.cpp -o $*.o
 	
 server-bin: $(SERVEROBJ) $(SHAREDOBJ)
-	$(CXX) $(FLAGS) $(LINKERF) $^ -o $@
+	$(CXX) $(FLAGS) $(LINKERF) -static-libstdc++ $^ -o $@
        
 client-bin: $(CLIENTOBJ) $(SHAREDOBJ)
 	$(CXX) $(FLAGS) -pthread $(LINKERF) $^ -o $@  

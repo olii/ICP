@@ -45,10 +45,12 @@ public:
     int GetTimeout();
 
     static uint32_t index;
+
 private:
     void SendTextToAll(std::string);
     void Dispatch();
     void RemovePlayerMessage(boost::shared_ptr<player> user);
+     void WaitLoop(const boost::system::error_code &error);
 
     uint32_t index_;
     std::string name;

@@ -323,15 +323,17 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
         }
         case Command::LEAVE:
         {
-            if ( !IsInGame() )
+            if ( IsInGame() )
             {
-                ErrorMessage("Player is not in game. Cannot leave.");
-                ErrorShutdown();
-                return;
+                //ErrorMessage("Player is not in game. Cannot leave.");
+                //ErrorShutdown();
+                //return;
+                game->Leave( shared_from_this() );
+                game.reset();
             }
-            game->Leave( shared_from_this() );
-            ErrorShutdown(); // nie je skutocne chyba, ale funkcia zastavi socket a hrac sa validne zdestruuje
-            return;
+
+            //ErrorShutdown(); // odkomentovat ak je chcena reakcia na leave disconnect
+            break;
         }
         case Command::TEXT:
         {

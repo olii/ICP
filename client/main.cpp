@@ -60,7 +60,10 @@ int main(int argc, char* argv[])
         {
             cout << x << endl;
         }
-        if( list.list.size() > 0 )
+
+        int b;
+        cin >> b;
+        if( b )
         {
             int gameid;
             cout << "Enter game id to join: ";
@@ -77,7 +80,7 @@ int main(int argc, char* argv[])
             std::string mapname ;
             cout << "Enter map name: ";
             cin >> mapname;
-            connection.CreateServer("SERVER0", 2, mapname, 1, 5);
+            connection.CreateServer("SERVER0", 2, mapname, 0.5, 10);
         }
 
 
@@ -161,19 +164,30 @@ int main(int argc, char* argv[])
                     connection.Leave();
                     break;
                 }
-                if( c == 'g' )
+                if( c == 'w' )
                 {
                     Command c;
                     c.SetType(Command::GO);
                     connection.SendCommand(c);
                 }
-                if(c == 'x' )
+                if( c == 's' )
                 {
                     Command c;
-                    c.SetType(Command::TEXT);
+                    c.SetType(Command::STOP);
                     connection.SendCommand(c);
                 }
-                cout << "you hit " << c << endl;
+                if( c == 'a' )
+                {
+                    Command c;
+                    c.SetType(Command::LEFT);
+                    connection.SendCommand(c);
+                }
+                if( c == 'd' )
+                {
+                    Command c;
+                    c.SetType(Command::RIGHT);
+                    connection.SendCommand(c);
+                }
             }
             if ( connection.Ready() )
             {
@@ -197,7 +211,7 @@ int main(int argc, char* argv[])
                     Map::MapMatrix screenbuffer = background;
                     for ( auto item: updatepacket.players )
                     {
-                        screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE );
+                        screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE + item.dir);
                     }
 
 
@@ -215,16 +229,26 @@ int main(int argc, char* argv[])
                                     cout << "█";
                                     break;
                                 case Map::GATE:
-                                    cout << 'G';
+                                    cout << "☰";
                                     break;
                                 case Map::KEY:
-                                    cout << 'K';
+                                    cout << "☉";
                                     break;
                                 case Map::FINISH:
-                                    cout << 'F';
+                                    cout << "★";
                                     break;
-                                case Map::PLAYER_BASE:
-                                    cout << 'P';
+                                case static_cast<Map::StaticTypes>( Map::PLAYER_BASE + 0):
+                                    cout << "↑";
+                                    break;
+                                case static_cast<Map::StaticTypes>( Map::PLAYER_BASE + 1):
+                                    cout << "→";
+                                    break;
+                                case static_cast<Map::StaticTypes>( Map::PLAYER_BASE + 2):
+                                    cout << "↓";
+                                    break;
+                                case static_cast<Map::StaticTypes>( Map::PLAYER_BASE + 3):
+                                    cout << "←";
+                                    break;
                                 default:
                                     break;
                             }

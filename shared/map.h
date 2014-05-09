@@ -14,7 +14,7 @@ public:
     void invalidate();
     bool IsValid();
 
-    enum StaticTypes {GRASS = 0, WALL = 1, KEY = 2, PLAYER_SPAWN = 3, GUARD_SPAWN = 4, GATE = 5, FINISH = 6, PLAYER_BASE = 99, PLAYER_A = 100, PLAYER_B, PLAYER_C, PLAYER_D};
+    enum StaticTypes {GRASS = 0, WALL = 1, KEY = 2, PLAYER_SPAWN = 3, GUARD_SPAWN = 4, GATE = 5, FINISH = 6, PLAYER_BASE = 100};
     std::vector< std::vector< StaticTypes > > items;
     std::string name;
 

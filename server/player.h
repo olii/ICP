@@ -54,6 +54,7 @@ public:
     bool alive;
     int keys;
     int steps;
+    playerDirection dir;
 
 
 private:

@@ -2,6 +2,7 @@
  * @file mainwindow.cpp
  *
  * @brief vedlajsi modul pre implementaciu grafickeho rozhrania aplikacie
+ *        implementacia klikatelnej casti pripajania sa na server
  * @author Stefan Marticek
  * @author Oliver Nemcek
  */
@@ -41,7 +42,7 @@ void MainWindow::on_pushButton_clicked()
     try
     {   //objekt uchovava vsetky potrebne informacie o hre aj pre dalsie okna a moduly
         informator = Informator::getInstance();
-        informator->Connect("merlin.fit.vutbr.cz", "55557");
+        informator->Connect(ui->lineEdit->text().toStdString() , ui->lineEdit_2->text().toStdString());
         //informator->Join(5);
 
         qDebug() << informator->getClientId() << "\n";
@@ -95,6 +96,18 @@ void MainWindow::on_pushButton_4_clicked()
 {
     Game * new_game = new Game(nullptr, 1);
     //hide();
+    //LoadMap(, ui->graphicsView);  //nacita sa prvy nahlad mapy
     new_game->setWindowModality(Qt::ApplicationModal);
     new_game->show();
+}
+
+void MainWindow::on_pushButton_6_clicked()
+{
+    QMessageBox msgBox;
+    msgBox.setText("Informacie o projekte");
+    msgBox.setWindowTitle("Projekt ICP 2013/2014");
+    msgBox.setInformativeText("Autori: Oliver Nemcek\n\tStefan Marticek\n");
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
 }

@@ -23,7 +23,8 @@ SOURCES += gui-main.cpp\
     ../network.cpp \
     informator.cpp \
     gpixmapitem.cpp \
-    GView.cpp
+    GView.cpp \
+    modelmanager.cpp
 
 HEADERS  += mainwindow.h \
     game.h \
@@ -34,7 +35,8 @@ HEADERS  += mainwindow.h \
     ../network.h \
     informator.h \
     gpixmapitem.h \
-    GView.h
+    GView.h \
+    modelmanager.h
 
 FORMS    += mainwindow.ui \
     game.ui

@@ -53,6 +53,9 @@
               <pointsize>16</pointsize>
              </font>
             </property>
+            <property name="text">
+             <string>My new game</string>
+            </property>
             <property name="placeholderText">
              <string>Game name</string>
             </property>
@@ -313,7 +316,11 @@
             <number>5</number>
            </property>
            <item>
-            <widget class="QTextBrowser" name="textBrowser"/>
+            <widget class="QTextBrowser" name="textBrowser">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
@@ -326,6 +333,13 @@
              </item>
              <item>
               <widget class="QLineEdit" name="lineEdit_2"/>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox">
+               <property name="text">
+                <string>Center on me</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -353,7 +367,7 @@
   <customwidget>
    <class>GView</class>
    <extends>QGraphicsView</extends>
-   <header location="local">GView.h</header>
+   <header>GView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

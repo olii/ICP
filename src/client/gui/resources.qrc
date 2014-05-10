@@ -1,22 +1,66 @@
 <RCC>
-    <qresource prefix="/">
-        <file>resources/33usewk.png</file>
-        <file>resources/076814-antique-glowing-copper-orb-icon-business-key2.png</file>
-        <file>resources/brixbug.png</file>
-        <file>resources/cervena.png</file>
-        <file>resources/door.png</file>
-        <file>resources/gate.jpg</file>
-        <file>resources/grass.jpg</file>
-        <file>resources/ground.jpg</file>
-        <file>resources/guard.png</file>
-        <file>resources/key.png</file>
+    <qresource prefix="/models">
         <file>resources/kluc.png</file>
-        <file>resources/kluc2.png</file>
-        <file>resources/PlayerSpawn.png</file>
+        <file>resources/stena.jpg</file>
         <file>resources/podlaha.png</file>
-        <file>resources/wall.png</file>
-        <file>resources/Wood-Door-7013AT.jpg</file>
-        <file>resources/krabica.jpg</file>
-        <file>resources/ToyFactory_Multi-texturing_tile.png</file>
+        <file>resources/hraci/0_0.png</file>
+        <file>resources/hraci/0_1.png</file>
+        <file>resources/hraci/0_2.png</file>
+        <file>resources/hraci/0_3.png</file>
+        <file>resources/hraci/1_0.png</file>
+        <file>resources/hraci/1_1.png</file>
+        <file>resources/hraci/1_2.png</file>
+        <file>resources/hraci/1_3.png</file>
+        <file>resources/hraci/2_0.png</file>
+        <file>resources/hraci/2_1.png</file>
+        <file>resources/hraci/2_2.png</file>
+        <file>resources/hraci/2_3.png</file>
+        <file>resources/gate.jpg</file>
+        <file>resources/door_opened.png</file>
+        <file>resources/hraci/3_0.png</file>
+        <file>resources/hraci/3_1.png</file>
+        <file>resources/hraci/3_2.png</file>
+        <file>resources/hraci/3_3.png</file>
+        <file>resources/hraci/4_0.png</file>
+        <file>resources/hraci/4_1.png</file>
+        <file>resources/hraci/4_2.png</file>
+        <file>resources/hraci/4_3.png</file>
+        <file>resources/hraci/5_0.png</file>
+        <file>resources/hraci/5_1.png</file>
+        <file>resources/hraci/5_2.png</file>
+        <file>resources/hraci/5_3.png</file>
+        <file>resources/hraci/6_0.png</file>
+        <file>resources/hraci/6_1.png</file>
+        <file>resources/hraci/6_2.png</file>
+        <file>resources/hraci/6_3.png</file>
+        <file>resources/hraci/7_0.png</file>
+        <file>resources/hraci/7_1.png</file>
+        <file>resources/hraci/7_2.png</file>
+        <file>resources/hraci/7_3.png</file>
+        <file>resources/hraci/8_0.png</file>
+        <file>resources/hraci/8_1.png</file>
+        <file>resources/hraci/8_2.png</file>
+        <file>resources/hraci/8_3.png</file>
+        <file>resources/hraci/9_0.png</file>
+        <file>resources/hraci/9_1.png</file>
+        <file>resources/hraci/9_2.png</file>
+        <file>resources/hraci/9_3.png</file>
+        <file>resources/hraci/10_0.png</file>
+        <file>resources/hraci/10_1.png</file>
+        <file>resources/hraci/10_2.png</file>
+        <file>resources/hraci/10_3.png</file>
+        <file>resources/hraci/11_0.png</file>
+        <file>resources/hraci/11_1.png</file>
+        <file>resources/hraci/11_2.png</file>
+        <file>resources/hraci/11_3.png</file>
+        <file>resources/hraci/12_0.png</file>
+        <file>resources/hraci/12_1.png</file>
+        <file>resources/hraci/12_2.png</file>
+        <file>resources/hraci/12_3.png</file>
+        <file>resources/hraci/13_0.png</file>
+        <file>resources/hraci/13_1.png</file>
+        <file>resources/hraci/13_2.png</file>
+        <file>resources/hraci/13_3.png</file>
+        <file>resources/treasure.png</file>
     </qresource>
 </RCC>

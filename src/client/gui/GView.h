@@ -1,4 +1,11 @@
 #ifndef GVIEW_H
+/**
+ * @file GView.h
+ *
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #define GVIEW_H
 
 #include <QGraphicsView>
@@ -15,7 +22,7 @@ public:
     explicit GView(QWidget *parent = 0);
     ~GView();
     virtual void wheelEvent(QWheelEvent* event);
-    virtual void resizeEvent(QResizeEvent * event);
+    //virtual void resizeEvent(QResizeEvent * event);
 
     virtual void mouseDoubleClickEvent(QMouseEvent * event);
 
@@ -29,6 +36,10 @@ public:
     qreal scale11 = 1.0;
 
     void init();
+
+
+private:
+
 };
 
 #endif // GVIEW_H

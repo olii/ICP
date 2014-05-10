@@ -1,3 +1,11 @@
+/**
+ * @file informator.cpp
+ *
+ * @brief implementacia navrhoveho vzoru singleton, ktory bol pouzity pre obsluhu sietoveho pripojenia
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #include "informator.h"
 
 uint32_t Informator::getClientId()

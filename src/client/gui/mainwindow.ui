@@ -82,7 +82,7 @@
              <string/>
             </property>
             <property name="text">
-             <string/>
+             <string>merlin.fit.vutbr.cz</string>
             </property>
             <property name="placeholderText">
              <string>server URL or IP address</string>
@@ -124,19 +124,18 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="pushButton_4">
-             <property name="text">
-              <string>Join Game</string>
+           <item row="2" column="0">
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QPushButton" name="pushButton_5">
-             <property name="text">
-              <string>Back</string>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
              </property>
-            </widget>
+            </spacer>
            </item>
            <item row="2" column="2">
             <spacer name="horizontalSpacer_3">
@@ -151,18 +150,26 @@
              </property>
             </spacer>
            </item>
-           <item row="2" column="0">
-            <spacer name="horizontalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="pushButton_4">
+             <property name="text">
+              <string>Join Game</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="pushButton_5">
+             <property name="text">
+              <string>Back</string>
              </property>
-            </spacer>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QPushButton" name="pushButton_6">
+             <property name="text">
+              <string>About</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

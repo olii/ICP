@@ -1,4 +1,4 @@
-FLAGS = -std=c++11 -g3 -pedantic -Wall -Wextra -fdiagnostics-color=always
+FLAGS = -std=c++11 -O2 -pedantic -Wall -Wextra -fdiagnostics-color=always
 # FLAGS = -std=c++11 -O2
 LINKERF = -lboost_system -lboost_serialization -lboost_filesystem
 

@@ -1,10 +1,18 @@
+/**
+ * @file gpixmapitem.cpp
+ *
+ * @brief vedlajsi modul pre implementaciu grafickeho rozhrania aplikacie
+ *        pomocny modul pre obsluhu animacii
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #include "gpixmapitem.h"
+#include "informator.h"
 #include <QObject>
 #include <QStyleOptionGraphicsItem>
 #include <QPainter>
 #include <QDebug>
-
-
 
 GPixmapItem::GPixmapItem(): QObject()
 {
@@ -38,12 +46,12 @@ QRectF GPixmapItem::boundingRect() const
 
 void GPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget* widget)
 {
-    if ( m_size == 512 ) // HARDCODED konstanta, zmen na tu tvoju
+    if ( m_size == TEXTURE_SIZE ) // HARDCODED konstanta, zmen na tu tvoju
     {
         QGraphicsPixmapItem::paint(painter, option, widget);
     }
     else
     {
-        painter->drawPixmap(QRectF(QPointF((512/2)-(m_size/2),(512/2)-(m_size/2)),QSizeF(m_size,m_size)).toRect(), pixmap());
+        painter->drawPixmap(QRectF(QPointF((TEXTURE_SIZE/2)-(m_size/2),(TEXTURE_SIZE/2)-(m_size/2)),QSizeF(m_size,m_size)).toRect(), pixmap());
     }
 }

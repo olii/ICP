@@ -63,7 +63,7 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
 
                     playerDirection dir = static_cast<playerDirection>(Manager::instance().Random() % 4); // random direction
                     int model = (Manager::instance().Random() % GuardModel::GUARD_COUNT) + playerModel::COUNT;  // choose model
-                    updatePacket.guards.push_back( MapItemsInfo( i, j,true,dir, model,guardIndexer ) ); // adding guards to update
+                    updatePacket.guards.push_back( MapItemsInfo( i, j,true,dir, model,guardIndexer++ ) ); // adding guards to update
                     break;
                 }
                 case Map::FINISH:

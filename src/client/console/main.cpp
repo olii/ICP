@@ -220,9 +220,10 @@ int main(int argc, char* argv[])
                 {
                     MapUpdate updatepacket = connection.GetPacketContent<MapUpdate>();
                     Map::MapMatrix screenbuffer = background;
+                    screenbuffer[updatepacket.treasure.x][updatepacket.treasure.y] = Map::FINISH;
                     for ( auto item: updatepacket.gates )
                     {
-                        if ( item.optionFlag == false )
+                        if ( item.optionFlag == true )
                         {
                             screenbuffer[item.x][item.y] = Map::GATE;
                         }
@@ -238,11 +239,14 @@ int main(int argc, char* argv[])
                             screenbuffer[item.x][item.y] = Map::KEY;
                         }
                     }
+                    for ( auto item: updatepacket.guards )
+                    {
+                        screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::GUARD_BASE);
+                    }
                     for ( auto item: updatepacket.players )
                     {
                         screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE + item.dir);
                     }
-                    screenbuffer[updatepacket.treasure.x][updatepacket.treasure.y] = Map::FINISH;
 
 
 
@@ -263,6 +267,9 @@ int main(int argc, char* argv[])
                                     break;
                                 case Map::GATE_OPEN:
                                     cout << "░";
+                                    break;
+                                case Map::GUARD_BASE:
+                                    cout << "X";
                                     break;
                                 case Map::KEY:
                                     cout << "K";

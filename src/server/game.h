@@ -55,6 +55,7 @@ private:
     int pick_model();
     Point GetNextPosition(boost::shared_ptr<player> user);
     void ReturnKeys(boost::shared_ptr<player> user);
+    void UpdateAI();
 
     uint32_t index_;
     std::string name;

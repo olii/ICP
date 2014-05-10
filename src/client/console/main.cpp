@@ -245,7 +245,10 @@ int main(int argc, char* argv[])
                     }
                     for ( auto item: updatepacket.players )
                     {
-                        screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE + item.dir);
+                        if(item.optionFlag == true )
+                        {
+                            screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE + item.dir);
+                        }
                     }
 
 

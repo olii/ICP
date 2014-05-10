@@ -442,7 +442,7 @@ void Game::GameLoop(const boost::system::error_code &error)
     }
 
     /* do AI*/
-    //std::cout << "num of keys" << updatePacket.keys.size() <<std::endl;
+    UpdateAI();
 
 
     //SendTextToAll( "THIS IS LONG STRING" );
@@ -465,7 +465,7 @@ void Game::Dispatch()
     updatePacket.players.clear();
     for ( auto &x: players )
     {
-        MapItemsInfo p(x->x, x->y,true, x->dir, x->GetModel(),x->GetIndex(), x->keys, x->steps );
+        MapItemsInfo p(x->x, x->y,x->alive, x->dir, x->GetModel(),x->GetIndex(), x->keys, x->steps );
         updatePacket.players.push_back(p);
     }
     for( auto &x: players )
@@ -541,6 +541,105 @@ void Game::ReturnKeys( boost::shared_ptr<player> user )
     }
 
     /* all keys are back in game*/
+}
+
+void Game::UpdateAI()
+{
+    for( auto &guard : updatePacket.guards )
+    {
+        Point new_coord = std::make_pair( guard.x, guard.y );
+        switch (guard.dir)
+        {
+            case playerDirection::UP:
+                new_coord.first -= 1;
+                break;
+            case playerDirection::RIGHT:
+                new_coord.second += 1;
+                break;
+            case playerDirection::DOWN:
+                new_coord.first += 1;
+                break;
+            case playerDirection::LEFT:
+                new_coord.second -= 1;
+                break;
+            default:
+                break;
+        }
+
+        /*test this new coord*/
+        try
+        {
+            if ( matrix.at(new_coord.first).at(new_coord.second) == Map::PLAYER_BASE )
+            {
+                // kill player
+                /* find out who */
+                for( auto &user: players )
+                {
+                    if( user->x == int(new_coord.first) && user->y == int(new_coord.second) )
+                    {
+                        /* kill this player */
+                        user->alive = false;
+                        matrix[new_coord.first][new_coord.second] = Map::GUARD_BASE;
+                        matrix[guard.x][guard.y] = Map::GRASS;
+                        guard.x = new_coord.first;
+                        guard.y = new_coord.second;
+                        ReturnKeys(user);
+                        RemovePlayerMessage(user);
+                        /* test if all players are dead */
+                        auto it = find_if(players.begin(), players.end(), [] ( boost::shared_ptr<player> ptr ) { return ptr->alive == true; } );
+                        if( it == players.end() )
+                        {
+                            SendTextToAll("All players are dead. Game over.");
+                            //won = true; // make game stopped, HACK
+                        }
+
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+            }
+            else if ( matrix.at(new_coord.first).at(new_coord.second) != Map::WALL &&
+                      matrix.at(new_coord.first).at(new_coord.second) != Map::GATE &&
+                      matrix.at(new_coord.first).at(new_coord.second) != Map::GUARD_BASE &&
+                      guard.steps > 0 )
+            {
+                //do move
+                guard.steps--;
+                matrix[new_coord.first][new_coord.second] = Map::GUARD_BASE;
+                matrix[guard.x][guard.y] = Map::GRASS;
+                guard.x = new_coord.first;
+                guard.y = new_coord.second;
+            }
+            else
+            {
+                guard.steps = Manager::instance().Random()%10;
+                if( Manager::instance().Random()%2 )
+                {
+                    guard.dir = static_cast<playerDirection>((guard.dir + 3)%4);
+                }
+                else
+                {
+                    guard.dir = static_cast<playerDirection>((guard.dir + 1)%4);
+                }
+                continue;
+            }
+
+        }
+        catch (const std::out_of_range& )
+        {
+            if( Manager::instance().Random()%2 )
+            {
+                guard.dir = static_cast<playerDirection>((guard.dir + 3)%4);
+            }
+            else
+            {
+                guard.dir = static_cast<playerDirection>((guard.dir + 1)%4);
+            }
+        }
+    }
 }
 
 

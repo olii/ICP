@@ -50,21 +50,20 @@ int main(int argc, char* argv[])
 
         Network connection(argv[1], argv[2]);
         connection.Connect();
-        //connection.Join(0);
 
 
 
-
-        ServerInfoList list = connection.GetServerList();
-        for( auto x: list.list )
-        {
-            cout << x << endl;
-        }
+        cout << "Join game: 0\nCreate game: 1\nYour Choice:" << endl;
 
         int b;
         cin >> b;
-        if( b )
+        if( !b )
         {
+            ServerInfoList list = connection.GetServerList();
+            for( auto x: list.list )
+            {
+                cout << x << endl;
+            }
             int gameid;
             cout << "Enter game id to join: ";
             cin >> gameid;
@@ -80,7 +79,7 @@ int main(int argc, char* argv[])
             std::string mapname ;
             cout << "Enter map name: ";
             cin >> mapname;
-            connection.CreateServer("SERVER0", 2, mapname, 0.5, 3);
+            connection.CreateServer("SERVER0", 2, mapname, 0.5, 0);
         }
 
 
@@ -290,12 +289,10 @@ int main(int argc, char* argv[])
                         cout << endl;
                     }
                     cout << endl;
-                    static int i=0;
-                    cout << i++ <<endl;
                 }
                 else
                 {
-                    cout << "Unknown packet header " << connection.GetHeaderType() << endl;
+                    //cout << "Unknown packet header " << connection.GetHeaderType() << endl;
                 }
             }
 

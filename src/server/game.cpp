@@ -26,22 +26,14 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
 
     matrix = map.items;
 
-
-    /*
-    std::vector< MapItemsInfo > players;
-    std::vector< MapItemsInfo > guards;
-    std::vector< MapItemsInfo > keys;
-    std::vector< MapItemsInfo > gates;
-    MapItemsInfo treasure;
-    */
-
     updatePacket.players.clear();
     updatePacket.guards.clear();
     updatePacket.keys.clear();
     updatePacket.gates.clear();
     updatePacket.treasure = MapItemsInfo(0,0);
 
-    //    enum StaticTypes {GRASS = 0, WALL = 1, KEY = 2, PLAYER_SPAWN = 3, GUARD_SPAWN = 4, GATE = 5, FINISH = 6, PLAYER_BASE = 99, PLAYER_A = 100, PLAYER_B, PLAYER_C, PLAYER_D};
+    int guardIndexer = 0;
+
     for( uint i =0; i<matrix.size();++i )
     {
         for( uint j=0; j<matrix[i].size();++j)
@@ -66,9 +58,14 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
                     updatePacket.keys.push_back( MapItemsInfo( i,j, true ) );
                     break;
                 case Map::GUARD_SPAWN:
-                    guardSpawn.push_back( std::make_pair(i, j) );
-                    matrix[i][j] = Map::GRASS;
+                {
+                    matrix[i][j] = Map::GUARD_BASE;
+
+                    playerDirection dir = static_cast<playerDirection>(Manager::instance().Random() % 4); // random direction
+                    int model = (Manager::instance().Random() % GuardModel::GUARD_COUNT) + playerModel::COUNT;  // choose model
+                    updatePacket.guards.push_back( MapItemsInfo( i, j,true,dir, model,guardIndexer ) ); // adding guards to update
                     break;
+                }
                 case Map::FINISH:
                     updatePacket.treasure = MapItemsInfo(i, j);
                     break;
@@ -130,6 +127,7 @@ bool Game::Join( boost::shared_ptr<player> user )
         Leave(user);
         return false;
     }
+    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
     /* send initial map update to all */
     Dispatch();
 
@@ -138,7 +136,6 @@ bool Game::Join( boost::shared_ptr<player> user )
         Start();
     }
 
-    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
     return true;
 }
 
@@ -179,6 +176,17 @@ bool Game::Joined( boost::shared_ptr<player> user )
 void Game::GameMessage(boost::shared_ptr<player> user, Command c)
 {
     std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] got command" << std::endl;
+    if( win == true )
+    {
+        user->SendString("Game has been won. Command not accepted.");
+        return;
+    }
+    if( user->alive != true )
+    {
+        user->SendString("You are dead. Command not accepted.");
+        return;
+    }
+
     switch (c.GetType()) {
         case Command::LEFT:
             user->dir = static_cast<playerDirection>((user->dir + 3)%4);
@@ -310,10 +318,12 @@ void Game::Shutdown()
 
 void Game::Start()
 {
+    win = false;
     if( timeout <= 0 )
     {
         SendTextToAll(std::string("Good luck!") );
         boost::system::error_code ignored;
+        timer.expires_from_now(boost::posix_time::seconds(0));
         GameLoop(ignored);
     }
     else
@@ -405,6 +415,20 @@ void Game::GameLoop(const boost::system::error_code &error)
                 it->first->y = new_coord.second;
                 it->first->steps += 1;
                 it++;
+            }
+            else if ( matrix.at(new_coord.first).at(new_coord.second) == Map::FINISH )    // somebody reached end
+            {
+                matrix[it->first->x][it->first->y] = Map::GRASS;
+                matrix[new_coord.first][new_coord.second] = Map::PLAYER_BASE;
+                it->first->x = new_coord.first;
+                it->first->y = new_coord.second;
+                it->first->steps += 1;
+                it++;
+                /*now we stop the game, because somebody win*/
+                win = true;
+                SendTextToAll("Congratulations. You Win.");
+                //TODO SEND STATS
+                updatePacket.treasure.optionFlag = true;
             }
             else
             {
@@ -517,8 +541,6 @@ void Game::ReturnKeys( boost::shared_ptr<player> user )
     }
 
     /* all keys are back in game*/
-    //positions.clear();
-    std::cout << "DONE -----------------------------------" <<std::endl;
 }
 
 

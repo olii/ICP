@@ -63,6 +63,7 @@ private:
     int timeout;
     Map map_original;
     Map::MapMatrix matrix;
+    bool win;
 
     MapUpdate updatePacket;
 

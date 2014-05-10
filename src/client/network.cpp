@@ -38,7 +38,7 @@ bool Network::Ready()
     {
         throw NetworkException("Network error.");
     }
-    if ( counter ==  2048 ) // hack, heartbeat
+    if ( counter ==  300 ) // hack, heartbeat
     {
         counter = 0;
         SendHello();

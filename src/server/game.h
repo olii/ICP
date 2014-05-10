@@ -52,6 +52,9 @@ private:
     void RemovePlayerMessage(boost::shared_ptr<player> user);
     void WaitLoop(const boost::system::error_code &error);
     std::vector<MapItemsInfo>::iterator IsItem(int x, int y, std::vector<MapItemsInfo> &where );
+    int pick_model();
+    Point GetNextPosition(boost::shared_ptr<player> user);
+    void ReturnKeys(boost::shared_ptr<player> user);
 
     uint32_t index_;
     std::string name;
@@ -71,8 +74,6 @@ private:
     std::vector<Point> playerSpawn;
     std::vector<Point> guardSpawn;
     boost::asio::deadline_timer timer;
-    int pick_model();
-    Point GetNextPosition(boost::shared_ptr<player> user);
 };
 
 

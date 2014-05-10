@@ -99,18 +99,9 @@ bool Game::Join( boost::shared_ptr<player> user )
     }
     players.insert(user);
 
-    user->steps = 0;
-    user->alive = true;
-    user->keys = 0;
-    user->dir = static_cast<playerDirection>(Manager::instance().Random() % 4); // nahodne smer
-    user->encounteredKey = 0;
-    /* spawn position genetate */
-
     user->SetModel(pick_model());
-    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
 
     user->SendStaticMap(map_original);
-
 
     /* find player spawn */
     Point clientSpawn = std::make_pair( 9999,9999 );
@@ -129,6 +120,8 @@ bool Game::Join( boost::shared_ptr<player> user )
         user->alive = true;
         user->keys = 0;
         user->steps = 0;
+        user->dir = static_cast<playerDirection>(Manager::instance().Random() % 4); // nahodne smer
+        user->encounteredKey = 0;
         matrix[clientSpawn.first][clientSpawn.second] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE );
     }
     else
@@ -144,6 +137,8 @@ bool Game::Join( boost::shared_ptr<player> user )
     {
         Start();
     }
+
+    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
     return true;
 }
 
@@ -156,6 +151,10 @@ void Game::Leave( boost::shared_ptr<player> user )
 
 
     /* odstranit kluce TODO */
+    if( user->keys > 0 )
+    {
+        ReturnKeys(user);
+    }
 
     matrix[user->x][user->y] = Map::GRASS;
 
@@ -210,7 +209,7 @@ void Game::GameMessage(boost::shared_ptr<player> user, Command c)
             {
                 updatePacket.keys.erase(is_key);
                 user->keys += 1;
-                user->encounteredKey = false; // turn of stopper
+                user->encounteredKey = false; // turn of stop on key encountered
                 Dispatch();
             }
             else
@@ -301,7 +300,7 @@ int Game::GetTimeout()
 void Game::Shutdown()
 {
     timer.cancel();
-    for( auto x: players )
+    for( auto &x: players )
     {
         x->LeaveServerRequest();
     }
@@ -362,7 +361,8 @@ void Game::GameLoop(const boost::system::error_code &error)
             return;
         }
         std::cout << "Game [" << index_ <<"]: timer error " << error << std::endl;
-        /* TODO ukoncit server bepecne -- ASI HOTOVO*/
+        Shutdown();
+        Manager::instance().DestroyGame(shared_from_this());
     }
     std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
     std::cout << "Pending messages " << messageQue.size() << std::endl;
@@ -444,7 +444,7 @@ void Game::Dispatch()
         MapItemsInfo p(x->x, x->y,true, x->dir, x->GetModel(),x->GetIndex(), x->keys, x->steps );
         updatePacket.players.push_back(p);
     }
-    for( auto x: players )
+    for( auto &x: players )
     {
         x->SendMapUpdate( updatePacket );
     }
@@ -469,6 +469,58 @@ int Game::pick_model()
     player_model.erase(retval);
     return retval;
 }
+
+void Game::ReturnKeys( boost::shared_ptr<player> user )
+{
+    /* returning keys to map based on iterative list algorithm*/
+
+    std::list<Point> positions;
+    std::set<Point> closed;
+
+    positions.push_back( std::make_pair(user->x, user->y) ); // insert initial position
+
+    while( user->keys !=0 && !positions.empty() )
+    {
+        Point point = positions.front();
+        positions.pop_front();
+
+        if( closed.count(point) > 0 )
+        {
+            /* already in closed list */
+            continue;
+        }
+        else
+        {
+            closed.insert(point);
+        }
+
+        try
+        {
+            if ( matrix.at(point.first).at(point.second) != Map::WALL )
+            {
+                /* position is not gate nor key nor wall*/
+                if ( IsItem( point.first, point.second, updatePacket.keys ) == updatePacket.keys.end() &&
+                     IsItem( point.first, point.second, updatePacket.gates ) == updatePacket.gates.end() )
+                {
+                    updatePacket.keys.push_back( MapItemsInfo( point.first, point.second, true ) );
+                    user->keys -= 1;
+
+                    positions.push_back( std::make_pair(point.first+1, point.second) );
+                    positions.push_back( std::make_pair(point.first-1, point.second) );
+                    positions.push_back( std::make_pair(point.first, point.second+1) );
+                    positions.push_back( std::make_pair(point.first, point.second-1) );
+                }
+            }
+        }
+        catch (const std::out_of_range& )
+        { }
+    }
+
+    /* all keys are back in game*/
+    //positions.clear();
+    std::cout << "DONE -----------------------------------" <<std::endl;
+}
+
 
 
 std::vector<MapItemsInfo>::iterator Game::IsItem(int x, int y, std::vector<MapItemsInfo> &where )

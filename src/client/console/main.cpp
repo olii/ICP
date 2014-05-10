@@ -314,8 +314,6 @@ int main(int argc, char* argv[])
 
 
 
-
-
 void changemode(int dir)
 {
   static struct termios oldt, newt, tmp;

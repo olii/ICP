@@ -56,6 +56,8 @@ public:
     int steps;
     playerDirection dir;
     bool encounteredKey;
+    boost::posix_time::ptime startTime;
+
 
 
 private:

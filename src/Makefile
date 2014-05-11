@@ -17,7 +17,7 @@ all: Makefile.deps server-bin client-bin-console client-bin-gui
 	$(CXX) $(FLAGS) -c $*.cpp -o $*.o
 	
 server-bin: $(SERVEROBJ) $(SHAREDOBJ)
-	$(CXX) $(FLAGS) $(LINKERF) -static-libstdc++ $^ -o $@
+	$(CXX) $(FLAGS) $(LINKERF) -lboost_date_time -static-libstdc++ $^ -o $@
        
 client-bin-console: client/console/main.o $(CLIENTOBJ) $(SHAREDOBJ)
 	$(CXX) $(FLAGS) -pthread $(LINKERF) $^ -o $@  

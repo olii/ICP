@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,0,6">
@@ -318,7 +318,10 @@
            <item>
             <widget class="QTextBrowser" name="textBrowser">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -333,6 +336,16 @@
              </item>
              <item>
               <widget class="QLineEdit" name="lineEdit_2"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>TextLabel</string>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QCheckBox" name="checkBox">

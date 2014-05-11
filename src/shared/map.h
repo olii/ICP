@@ -34,13 +34,14 @@ class MapItemsInfo
 {
 public:
     MapItemsInfo();
-    MapItemsInfo(int x, int y, bool optionFlag = false , playerDirection dir = playerDirection::UP, int model = 0, uint32_t id = 0, int keyCount = 0, int steps = 0);
+    MapItemsInfo(int x, int y, bool optionFlag = false , playerDirection dir = playerDirection::UP, int model = 0, uint32_t id = 0, std::string strf = std::string(),int keyCount = 0, int steps = 0);
     uint32_t id; // id
     int x, y; // suradnice
     playerDirection dir; // orientacia
     int keyCount;
     int steps; // pocet krokov
     int model;
+    std::string stringField; // rezervovane pre buduce pouzitie - vyuziva sa ako timer
 
     bool optionFlag;   // pri brane, ci je otvorena, pri kluci ci je na mape
 
@@ -57,6 +58,8 @@ private:
         ar & steps;
         ar & model;
         ar & optionFlag;
+
+         ar & stringField;
     }
 };
 

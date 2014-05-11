@@ -119,6 +119,7 @@ bool Game::Join( boost::shared_ptr<player> user )
         user->steps = 0;
         user->dir = static_cast<playerDirection>(Manager::instance().Random() % 4); // nahodne smer
         user->encounteredKey = 0;
+        user->startTime = boost::posix_time::second_clock::local_time();
         matrix[clientSpawn.first][clientSpawn.second] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE );
     }
     else
@@ -330,6 +331,7 @@ void Game::Start()
         SendTextToAll(std::string("Good luck!") );
         boost::system::error_code ignored;
         timer.expires_from_now(boost::posix_time::seconds(0));
+        startTime = boost::posix_time::second_clock::local_time();
         GameLoop(ignored);
     }
     else
@@ -355,6 +357,7 @@ void Game::WaitLoop(const boost::system::error_code &error)
     if( timeout <= 0 )
     {
         SendTextToAll(std::string("Good luck!") );
+        startTime = boost::posix_time::second_clock::local_time();
         boost::system::error_code ignored;
         GameLoop(ignored);
     }
@@ -380,8 +383,6 @@ void Game::GameLoop(const boost::system::error_code &error)
         Shutdown();
         Manager::instance().DestroyGame(shared_from_this());
     }
-    //std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
-    //std::cout << "Pending messages " << messageQue.size() << std::endl;
 
     /* prechod hracskymi prikazmi a vykonavanie*/
     std::list< std::pair< boost::shared_ptr<player>, Command>  >::iterator it;
@@ -438,6 +439,9 @@ void Game::GameLoop(const boost::system::error_code &error)
                 /*now we stop the game, because somebody win*/
                 win = true;
                 SendTextToAll("Congratulations. You Win.");
+                boost::posix_time::time_duration diff;
+                diff = boost::posix_time::second_clock::local_time() - startTime;
+                SendTextToAll("Game Time: " + boost::posix_time::to_simple_string(diff));
                 //TODO SEND STATS
                 updatePacket.treasure.optionFlag = true;
             }
@@ -476,9 +480,20 @@ void Game::Dispatch()
     updatePacket.players.clear();
     for ( auto &x: players )
     {
-        MapItemsInfo p(x->x, x->y,x->alive, x->dir, x->GetModel(),x->GetIndex(), x->keys, x->steps );
+        boost::posix_time::time_duration diff;
+        diff = boost::posix_time::second_clock::local_time() - startTime;
+        MapItemsInfo p(x->x, x->y,x->alive, x->dir, x->GetModel(),x->GetIndex(),boost::posix_time::to_simple_string(diff), x->keys, x->steps );
         updatePacket.players.push_back(p);
     }
+
+    /*update timer of whole game*/
+    if( !win )
+    {
+        boost::posix_time::time_duration diff;
+        diff = boost::posix_time::second_clock::local_time() - startTime;
+        updatePacket.treasure.stringField = boost::posix_time::to_simple_string(diff);
+    }
+
     for( auto &x: players )
     {
         x->SendMapUpdate( updatePacket );
@@ -591,8 +606,14 @@ void Game::UpdateAI()
                     if( user->x == int(new_coord.first) && user->y == int(new_coord.second) )
                     {
                         /* kill this player */
-                        std::string message = std::string("New Player with id ") + std::to_string(user->GetIndex()) + std::string(" was killed.");
+                        std::string message = std::string("Player with id ") + std::to_string(user->GetIndex()) + std::string(" was killed.");
                         SendTextToAll(message);
+
+                        boost::posix_time::time_duration diff;
+                        diff = boost::posix_time::second_clock::local_time() - user->startTime;
+                        SendTextToAll("It took him only: " + boost::posix_time::to_simple_string(diff) + " to get killed.");
+
+
                         user->alive = false;
                         matrix[new_coord.first][new_coord.second] = Map::GUARD_BASE;
                         matrix[guard.x][guard.y] = Map::GRASS;

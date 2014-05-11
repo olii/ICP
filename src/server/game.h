@@ -57,6 +57,8 @@ private:
     void ReturnKeys(boost::shared_ptr<player> user);
     void UpdateAI();
 
+    boost::posix_time::ptime startTime;
+
     uint32_t index_;
     std::string name;
     uint maxPlayers;

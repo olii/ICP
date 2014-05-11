@@ -613,12 +613,12 @@ void Game::gameLoop()
                     tmp->id = item.id;
 
                     tmp->setPos( item.y*512, item.x*512 );
-                    tmp->setToolTip(tr("<h2>Player %1</h2><p>steps: <b>%2</b><br />keys: <b>%3</b></p>").arg(item.id).arg(item.steps).arg(item.keyCount));
+                    tmp->setToolTip(tr("<h2>Player %1</h2><p>Steps: <b>%2</b><br />Keys: <b>%3</b><br />In-Game Time: %4</p>")
+                                    .arg(item.id).arg(item.steps).arg(item.keyCount).arg(QString::fromStdString(item.stringField)));
                     scene.addItem( tmp );
                     tmp->setVisible(item.optionFlag);
 
                     pomoc.push_back(tmp); // vlozim do zoznamu dokoncenych
-
 
                 }
                 else
@@ -628,7 +628,8 @@ void Game::gameLoop()
                     // item = nova pozicia
                     (*it)->setVisible(item.optionFlag);
                     (*it)->setPixmap(ModelManager::GetInstance().GetModel(item.model, item.dir, ModelManager::PlayerModel));
-                    (*it)->setToolTip(tr("<h1>Player %1</h1><p>steps %2</p><p>keys: %3</p>").arg(item.id).arg(item.steps).arg(item.keyCount));
+                    (*it)->setToolTip(tr("<h2>Player %1</h2><p>Steps: <b>%2</b><br />Keys: <b>%3</b><br />In-Game Time: %4</p>").
+                                      arg(item.id).arg(item.steps).arg(item.keyCount).arg(QString::fromStdString(item.stringField)));
                     if ( (*it)->x == item.x && (*it)->y == item.y )
                     {
                         // pozicia hraca sa nezmeila - no job to do
@@ -711,6 +712,7 @@ void Game::gameLoop()
 
                 }
             }
+            ui->label_5->setText(QString::fromStdString(currentMap.treasure.stringField));
 
             // a spustit animacie
             /*center on*/

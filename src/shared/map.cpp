@@ -25,7 +25,7 @@ MapItemsInfo::MapItemsInfo()
     keyCount = 0;
 }
 
-MapItemsInfo::MapItemsInfo(int x, int y, bool optionFlag, playerDirection dir, int model, uint32_t id, int keyCount, int steps)
+MapItemsInfo::MapItemsInfo(int x, int y, bool optionFlag , playerDirection dir, int model, uint32_t id , std::string strf, int keyCount, int steps)
 {
     this->x = x;
     this->y = y;
@@ -36,6 +36,8 @@ MapItemsInfo::MapItemsInfo(int x, int y, bool optionFlag, playerDirection dir, i
     this->id = id;
     this->keyCount = keyCount;
     this->steps = steps;
+
+    this->stringField = strf;
 }
 
 

@@ -1,3 +1,10 @@
+/** @file player.cpp
+* @author Oliver Nemček
+* @brief implemetuje prevazne komunikaciu s hracom a synnchronizaciu komunikacie
+* herne spravy su delegovane objektu hry
+*/
+
+
 #include "../shared/global.h"
 #include "player.h"
 #include <boost/asio.hpp>
@@ -46,7 +53,9 @@ player::~player()
     //cout << "Player [" << index_ << "] destructed." << endl;
 }
 
-
+/**
+ * @brief Server sa hracovi identifikuje a posle mu jeho id
+ */
 void player::start()
 {
     //cout << "Player [" << index_ << "] starting with IP = " << socket_.remote_endpoint().address().to_string() << endl;
@@ -61,6 +70,9 @@ void player::start()
         boost::bind( &player::listen, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
+/**
+ * @brief ukonci spojenie s hracom v pripade chyby
+ */
 void player::ErrorShutdown()
 {
     //cout << "Player [" << index_ << "] entered ErrorShutdown()." << endl;
@@ -82,6 +94,10 @@ void player::ErrorShutdown()
     return;
 }
 
+
+/**
+ * @brief odosle hracovi aktualny zoznam hier
+ */
 void player::SendServerList()
 {
 
@@ -91,6 +107,9 @@ void player::SendServerList()
     WriteWrapper();
 }
 
+/**
+ * @brief odosle hracovi zoznam map
+ */
 void player::SendMapList()
 {
     ServerInfoList list = Manager::instance().MapList();
@@ -101,6 +120,9 @@ void player::SendMapList()
 }
 
 
+/**
+ * @brief Odosle hracovi chybovu spravu
+ */
 void player::ErrorMessage(std::string str)
 {
     Command text(str);
@@ -122,20 +144,34 @@ void player::ErrorMessage(std::string str)
     }
 }
 
+
+/**
+ * @brief navrati id hraca
+ */
 uint32_t player::GetIndex()
 {
     return index_;
 }
-
+/**
+ * @brief nastavi hracov model
+ */
 void player::SetModel(int id)
 {
     player_model = id;
 }
 
+/**
+ * @brief id modelu hraca
+ */
 int player::GetModel()
 {
     return player_model;
 }
+
+/**
+ * @brief posle mapu klientovi
+ * @param[in] mapname meno mapy, ktora sa posle hracovi
+ */
 void player::SendMap(std::string mapname)
 {
     Map tmp = Manager::instance().GetMapByName(mapname);
@@ -195,9 +231,10 @@ void player::do_read()
       boost::bind( &player::handle_header, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred) );
 }
 
-
+/**
+ * @brief reakcia na nacitanu hlavicku packetu, volana pomocou asio
+ */
 void player::handle_header(const boost::system::error_code& error, std::size_t bytes_transferred )
-/* TODO */
 {
 
     if ( error || bytes_transferred != packetHeader::header_size )
@@ -280,6 +317,10 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
         do_read();
     }
 }
+
+/**
+ * @brief Reakcia na spravu typu command, ktora je volana z boost::asio
+ */
 void player::HandleCommand(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
     if ( error || bytes_transferred != inheader[1] )
@@ -314,8 +355,8 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
             if ( ! new_game->Join( shared_from_this() ) )
             {
                 ErrorMessage(std::string("Unable to join game. Game is full or error ocured.") );
-                ErrorShutdown();
-                return;
+                //ErrorShutdown();
+                 break;
             }
             game = new_game;
 
@@ -392,6 +433,10 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
     do_read();
 }
 
+
+/**
+ * @brief reakci na klientove ziadane o vytvorenie novej hry
+ */
 void player::HandleCreateServer(const boost::system::error_code &error, std::size_t bytes_transferred)
 {
     if ( error || bytes_transferred != inheader[1] )
@@ -426,13 +471,21 @@ void player::HandleCreateServer(const boost::system::error_code &error, std::siz
 
 
 
-
+/**
+ * @brief test herneho stavu klienta
+ * @return akk je hrac v hre vrati sa true, inak sa vrati false
+ */
 bool player::IsInGame()
 {
     return static_cast<bool>(game);
 }
 
-
+/**
+ * @brief metoda synchronizuje odosielanie sprav klientovi
+ * serializacny buffer je ulozeny v docasnej pamatovej strukture z
+ * ktorej bude odoslany postupne klientovi
+ * pamatova struktura je typu FIFO
+ */
 void player::WriteWrapper()
 {
     std::vector<char> tmp;
@@ -484,7 +537,10 @@ void player::handle_write(const boost::system::error_code& error)
     }
 }
 
-
+/**
+ * @brief Serializacne predlohy pre rozne typy packetov
+ * objekt sa uklada v internych bufferoch
+ */
 template <class T, typename C>
 std::vector<boost::asio::const_buffer> player::Serialize(const T &t, C code )
 {

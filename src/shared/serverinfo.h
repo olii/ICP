@@ -1,3 +1,11 @@
+/** @file serverinfo.h
+* @author Oliver Nemček
+* @brief Informacie o serveri, ktore su prenasane po sieti
+*
+* definicie datovych typov
+* triedy obsahuju vsetko co moze klient o stave servera ziskat
+*/
+
 #ifndef SERVERINFO_H
 #define SERVERINFO_H
 

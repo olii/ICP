@@ -1,3 +1,11 @@
+/** @file manager.cpp
+* @author Oliver Nemček
+* @brief implemetacia metod triedy Manager
+*
+* rezia pamate je zalozena na zdielanych pointroch
+*
+*/
+
 #include "manager.h"
 #include <boost/shared_ptr.hpp>
 #include <iostream>
@@ -12,6 +20,12 @@
 using std::cout;
 using std::endl;
 
+
+/**
+ * @brief vyhladavanie rozohranej hry podla id
+ * @param[in] id id hry
+ * @return zdielany pointer na hru, alebo neplatny zdielany pointer ak sa hra nenasla
+ */
 boost::shared_ptr<Game> Manager::GetGameById(uint32_t id)
 {
     if ( database.find( id ) == database.end() )
@@ -21,6 +35,11 @@ boost::shared_ptr<Game> Manager::GetGameById(uint32_t id)
     return database[id];
 }
 
+
+/**
+ * @brief navrati prvu hru do ktorej je mozne sa ihned prihlasit
+ * @return zdielany pointer na danu hru
+ */
 boost::shared_ptr<Game> Manager::GetJoinableGame()
 {
     for( auto x: database )
@@ -33,6 +52,11 @@ boost::shared_ptr<Game> Manager::GetJoinableGame()
     return boost::shared_ptr<Game>();
 }
 
+
+/**
+ * @brief Metóda ktora vygeneruje aktualny zoznam prebiehanych hier
+ * @return objekt triedy ServerInfoList, ktory obsahuje vsetky hry
+ */
 ServerInfoList Manager::ServerList()
 {
     ServerInfoList l;
@@ -45,6 +69,10 @@ ServerInfoList Manager::ServerList()
     return l;
 }
 
+/**
+ * @brief navrati dostupne mapy ktore mozu byt spustene na serveri
+ * @return objekt ktory obsahuje vsetky mapy
+ */
 ServerInfoList Manager::MapList()
 {
     ServerInfoList l;
@@ -56,6 +84,12 @@ ServerInfoList Manager::MapList()
     return l;
 }
 
+
+/**
+ * @brief na zaklade nazvu mapy navrati danu mapu z databazy map
+ * @param[in] name nazov mapy
+ * @return objekt typu mapa, validnost indikuje priznak
+ */
 Map Manager::GetMapByName(std::string name)
 {
     if (maplist.find(name) != maplist.end() ) // has key
@@ -67,6 +101,9 @@ Map Manager::GetMapByName(std::string name)
     return dummy;
 }
 
+/**
+ * @brief metoda nacitava mapy z adresara a uklada ich v databaze map
+ */
 void Manager::LoadMapList()
 {
     boost::filesystem::path targetDir("./maps");
@@ -95,6 +132,9 @@ void Manager::LoadMapList()
     cout << "Manager: Loaded " << maplist.size() << " map(s)." << endl;
 }
 
+/**
+ * @brief overi poziadavky na novu hru
+ */
 bool Manager::ValidateNewGame(std::string &name, int max, float tick, int timeout, std::string &map )
 {
     if (name == std::string(""))
@@ -112,6 +152,15 @@ bool Manager::ValidateNewGame(std::string &name, int max, float tick, int timeou
     return true;
 }
 
+/**
+ * @brief vytvori hru podla zadanych parametrov a zaregistruje ju
+ * @param[in] name nazov hry
+ * @param[in] max maximalny pocet hracov
+ * @param[in] tick aktualizacna frekvencia hry
+ * @param[in] timeout pociatocne oddialenie zaciatku hry
+ * @param[in] map nazov mapy
+ * @return vrati zdielany pointer na vytvorenu hru
+ */
 boost::shared_ptr< Game > Manager::CreateGame(std::string name, int max, float tick, int timeout, std::string map )
 {
 
@@ -125,12 +174,18 @@ boost::shared_ptr< Game > Manager::CreateGame(std::string name, int max, float t
     return ptr;
 }
 
+/**
+ * @brief odstrani zadanu hru a vola destruktor
+ */
 void Manager::DestroyGame(boost::shared_ptr<Game> game)
 {
     RemoveGame(game);
     //cout << "Manager: Current games = " << database.size() <<endl;
 }
 
+/**
+ * @brief metoda sa snazi bezpecne vypnut vsetky hry ktore su na serveri
+ */
 void Manager::Shutdown()
 {
     for ( auto x: database )
@@ -140,6 +195,10 @@ void Manager::Shutdown()
     database.clear();
 }
 
+/**
+ * @brief generator nahodnych cisel
+ * @return vrati nahodny integer
+ */
 int Manager::Random()
 {
     return distribution(generator);  // generates number

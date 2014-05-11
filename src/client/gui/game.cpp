@@ -360,11 +360,18 @@ void Game::on_pushButton_3_clicked()
         int row = ui->tableWidget_2->currentRow();
         //qDebug() << row << ui->tableWidget_2->item(row, 0)->text().toInt() << ui->tableWidget_2->selectedItems().size();
 
-        Informator::getInstance()->Join( ui->tableWidget_2->item(row, 0)->text().toInt() );
-        SetTimer(static_cast<int>(ui->tableWidget_2->item(row, 3)->text().toFloat() * 1000));
-        inGame = true;
-        ui->stackedWidget->setCurrentIndex(2);
-        AfterJoinTask();
+        try
+        {
+            Informator::getInstance()->Join( ui->tableWidget_2->item(row, 0)->text().toInt() );
+            SetTimer(static_cast<int>(ui->tableWidget_2->item(row, 3)->text().toFloat() * 1000));
+            AfterJoinTask();
+            inGame = true;
+            ui->stackedWidget->setCurrentIndex(2);
+        }
+        catch( NetworkException &e )
+        {
+            ShowError(QString("Create error"), QString(e.what()), QMessageBox::Critical);
+        }
     }
 }
 
@@ -388,9 +395,17 @@ void Game::on_pushButton_clicked()
                                                  static_cast<float> (ui->doubleSpinBox->value()),\
                                                  ui->spinBox->value());
         SetTimer(static_cast<int>(ui->doubleSpinBox->value() * 1000));
-        inGame = true;
-        ui->stackedWidget->setCurrentIndex(2);
-        AfterJoinTask();
+
+        try
+        {
+            AfterJoinTask();
+            ui->stackedWidget->setCurrentIndex(2);
+            inGame = true;
+        }
+        catch( NetworkException &e )
+        {
+            ShowError(QString("Create error"), QString(e.what()), QMessageBox::Critical);
+        }
     }
 }
 
@@ -999,11 +1014,19 @@ void Game::on_pushButton_7_clicked()
     if (list.list.size() > 0)
     {
         int index = qrand() % list.list.size();
-        Informator::getInstance()->Join( list.list[index].id );
-        SetTimer(static_cast<int>(list.list[index].timer * 1000));
-        inGame = true;
-        ui->stackedWidget->setCurrentIndex(2);
-        AfterJoinTask();
+
+        try
+        {
+            Informator::getInstance()->Join( list.list[index].id );
+            SetTimer(static_cast<int>(list.list[index].timer * 1000));
+            AfterJoinTask();
+            ui->stackedWidget->setCurrentIndex(2);
+            inGame = true;
+        }
+        catch( NetworkException &e )
+        {
+            ShowError(QString("Create error"), QString(e.what()), QMessageBox::Critical);
+        }
     }
     else
     {

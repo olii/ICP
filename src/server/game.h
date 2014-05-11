@@ -1,3 +1,8 @@
+/** @file game.h
+* @author Oliver Nemček
+* @brief abstrakcia hry a spravovanie hernej logiky
+*/
+
 #ifndef GAME_H
 #define GAME_H
 #include <set>

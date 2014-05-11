@@ -1,3 +1,9 @@
+/** @file game.cpp
+* @author Oliver Nemček
+* @brief abstrahuje hraca so vsetkymi metodami nutnymi k
+* hraniu hry a ku komunikacii po sieti
+*/
+
 #include "game.h"
 #include "manager.h"
 #include <boost/shared_ptr.hpp>
@@ -13,7 +19,10 @@ using std::set;
 
 uint32_t Game::index = 0;
 
-
+/**
+ * @brief konstruktor, ktory vytvori hru podla zadanych parametrov
+ * hra je po konstrukcii pripravena na prihlasenie hracov
+ */
 Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_( Game::index++ ), timer(io_service)
 {
     this->name = name;
@@ -87,6 +96,11 @@ Game::~Game()
     //std::cout << "Game [" << index_ <<"] destructed, message que="<< messageQue.size() << std::endl;
 }
 
+/**
+ * @brief Metóda prida hraca do hry
+ * @param[in] user zdielany pointer hraca
+ * @return true ak sa pridanie podarilo inak false
+ */
 bool Game::Join( boost::shared_ptr<player> user )
 {
     if (players.size() >= maxPlayers)
@@ -144,6 +158,11 @@ bool Game::Join( boost::shared_ptr<player> user )
     return true;
 }
 
+/**
+ * @brief metoda ktora odhlasi hraca z hry
+ * @param[in] user zdielany pointer na hraca
+ * @return Index vo vektore hlídačov @see Interface::guards
+ */
 void Game::Leave( boost::shared_ptr<player> user )
 {
     //std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] leaving the game." << std::endl;
@@ -175,11 +194,20 @@ void Game::Leave( boost::shared_ptr<player> user )
     SendTextToAll(message);
 }
 
+/**
+ * @brief testuje ci je dany hrac pripojeny v hre
+ */
 bool Game::Joined( boost::shared_ptr<player> user )
 {
     return (players.find(user) != players.end());
 }
 
+
+/**
+ * @brief metoda hraguje na herne spravy od hraca
+ * @param[in] user hrac
+ * @param[in] Herna sprava typu Command
+ */
 void Game::GameMessage(boost::shared_ptr<player> user, Command c)
 {
     //std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] got command" << std::endl;
@@ -323,6 +351,9 @@ void Game::Shutdown()
     messageQue.clear();
 }
 
+/**
+ * @brief metoda spusta interny casovac hry
+ */
 void Game::Start()
 {
     win = false;
@@ -343,6 +374,9 @@ void Game::Start()
     }
 }
 
+/**
+ * @brief casovac timeoutu hry
+ */
 void Game::WaitLoop(const boost::system::error_code &error)
 {
     if( error )
@@ -370,6 +404,10 @@ void Game::WaitLoop(const boost::system::error_code &error)
     }
 }
 
+
+/**
+ * @brief zakladny herny cyklus, volany periodicky
+ */
 void Game::GameLoop(const boost::system::error_code &error)
 {
     if( error )
@@ -467,6 +505,10 @@ void Game::GameLoop(const boost::system::error_code &error)
     timer.async_wait( boost::bind( &Game::GameLoop, shared_from_this(), boost::asio::placeholders::error ) );
 }
 
+/**
+ * @brief odosle text vsetkym hracom v hre
+ * @param[in] text retazec
+ */
 void Game::SendTextToAll(  std::string text)
 {
     for( auto x: players )
@@ -475,6 +517,10 @@ void Game::SendTextToAll(  std::string text)
     }
 }
 
+
+/**
+ * @brief odosle vsetkym hracom v hre novy paket s aktualizaciami
+ */
 void Game::Dispatch()
 {
     updatePacket.players.clear();
@@ -519,6 +565,11 @@ int Game::pick_model()
     return retval;
 }
 
+
+/**
+ * @brief navrati do mapy vsetky kluce ktore mal hrac
+ * kluce sa spawnuju na poziciu okolo hraca do kruhu
+ */
 void Game::ReturnKeys( boost::shared_ptr<player> user )
 {
     /* returning keys to map based on iterative list algorithm*/
@@ -571,6 +622,10 @@ void Game::ReturnKeys( boost::shared_ptr<player> user )
     /* all keys are back in game*/
 }
 
+/**
+ * @brief aktualizuje umelu inteligenciu vsetkych hlidacov
+ * zalozena na rand()
+ */
 void Game::UpdateAI()
 {
     for( auto &guard : updatePacket.guards )
@@ -686,6 +741,10 @@ std::vector<MapItemsInfo>::iterator Game::IsItem(int x, int y, std::vector<MapIt
     return find_if(where.begin(), where.end(), [x, y] (const MapItemsInfo &s) { return (s.x  == x && s.y == y); } );
 }
 
+/**
+ * @brief vypocita novu poziciu hraca podla smeru v ktorom je otoceny
+ * @param[in] user hrac
+ */
 Point Game::GetNextPosition( boost::shared_ptr<player> user )
 {
     Point new_coord = std::make_pair( user->x, user->y );

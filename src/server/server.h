@@ -1,3 +1,10 @@
+/** @file server.h
+* @author Oliver Nemček
+* @brief definicia triedy server, ktora sa stara o prvotnu pracu s klientom
+*
+* Server dynamicky vytvara klientov ak sa pripoja na socket
+*/
+
 #ifndef SERVER_H
 #define SERVER_H
 #include <boost/asio.hpp>

@@ -1,3 +1,9 @@
+/** @file player.h
+* @author Oliver Nemček
+* @brief abstrahuje hraca so vsetkymi metodami nutnymi k
+* hraniu hry a ku komunikacii po sieti
+*/
+
 #ifndef PLAYER_H
 #define PLAYER_H
 

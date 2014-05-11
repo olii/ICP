@@ -76,7 +76,7 @@ Game::Game(std::string name, int max, float tick, int timeout, Map map ):index_(
         }
     }
     messageQue.clear();
-    std::cout << "Game [" << index_ << "  " << this->name << "] constructed" << std::endl;
+    //std::cout << "Game [" << index_ << "  " << this->name << "] constructed" << std::endl;
 }
 
 Game::~Game()
@@ -84,14 +84,14 @@ Game::~Game()
     timer.cancel();
     players.clear();
     messageQue.clear();
-    std::cout << "Game [" << index_ <<"] destructed, message que="<< messageQue.size() << std::endl;
+    //std::cout << "Game [" << index_ <<"] destructed, message que="<< messageQue.size() << std::endl;
 }
 
 bool Game::Join( boost::shared_ptr<player> user )
 {
     if (players.size() >= maxPlayers)
     {
-        std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] couldn't join to the game. Exceeding maxplayers." << std::endl;
+        //std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] couldn't join to the game. Exceeding maxplayers." << std::endl;
         return false;
     }
     players.insert(user);
@@ -123,11 +123,12 @@ bool Game::Join( boost::shared_ptr<player> user )
     }
     else
     {
-        std::cout << "TODO!!!!!!!!!!!!!!!!!! Spawn not found" << std::endl;
+        //std::cout << "TODO!!!!!!!!!!!!!!!!!! Spawn not found" << std::endl;
         Leave(user);
         return false;
     }
-    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
+    // std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] added to the game with model = " << user->GetModel()<< "." << std::endl;
+
     /* send initial map update to all */
     Dispatch();
 
@@ -135,13 +136,16 @@ bool Game::Join( boost::shared_ptr<player> user )
     {
         Start();
     }
+    std::string message;
+    message = std::string("New Player with id ") + std::to_string(user->GetIndex()) + std::string(" joined game.");
+    SendTextToAll(message);
 
     return true;
 }
 
 void Game::Leave( boost::shared_ptr<player> user )
 {
-    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] leaving the game." << std::endl;
+    //std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] leaving the game." << std::endl;
     players.erase( user );
     RemovePlayerMessage( user );
     player_model.insert(user->GetModel());
@@ -158,7 +162,7 @@ void Game::Leave( boost::shared_ptr<player> user )
 
     if ( players.empty() )
     {
-        std::cout << "Game [" << index_ <<"]: is empty." << std::endl;
+        //std::cout << "Game [" << index_ <<"]: is empty." << std::endl;
         timer.cancel();
         Manager::instance().DestroyGame(shared_from_this());
     }
@@ -166,6 +170,8 @@ void Game::Leave( boost::shared_ptr<player> user )
     {
         Dispatch();
     }
+    std::string message = std::string("New Player with id ") + std::to_string(user->GetIndex()) + std::string(" has left the game.");
+    SendTextToAll(message);
 }
 
 bool Game::Joined( boost::shared_ptr<player> user )
@@ -175,7 +181,7 @@ bool Game::Joined( boost::shared_ptr<player> user )
 
 void Game::GameMessage(boost::shared_ptr<player> user, Command c)
 {
-    std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] got command" << std::endl;
+    //std::cout << "Game [" << index_ <<"]: player[" << user->GetIndex() << "] got command" << std::endl;
     if( win == true )
     {
         user->SendString("Game has been won. Command not accepted.");
@@ -341,10 +347,10 @@ void Game::WaitLoop(const boost::system::error_code &error)
     {
         if ( error == boost::asio::error::operation_aborted )
         {
-            std::cout << "Game [" << index_ <<"]: timer operation aborted" << std::endl;
+            //std::cout << "Game [" << index_ <<"]: timer operation aborted" << std::endl;
             return;
         }
-        std::cout << "Game [" << index_ <<"]: timer error " << error << std::endl;
+        //std::cout << "Game [" << index_ <<"]: timer error " << error << std::endl;
     }
     if( timeout <= 0 )
     {
@@ -367,21 +373,26 @@ void Game::GameLoop(const boost::system::error_code &error)
     {
         if ( error == boost::asio::error::operation_aborted )
         {
-            std::cout << "Game [" << index_ <<"]: timer operation aborted" << std::endl;
+            //std::cout << "Game [" << index_ <<"]: timer operation aborted" << std::endl;
             return;
         }
-        std::cout << "Game [" << index_ <<"]: timer error " << error << std::endl;
+        //std::cout << "Game [" << index_ <<"]: timer error " << error << std::endl;
         Shutdown();
         Manager::instance().DestroyGame(shared_from_this());
     }
-    std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
-    std::cout << "Pending messages " << messageQue.size() << std::endl;
+    //std::cout << "Game [" << index_ <<"]: Gameloop ok: Joined Players: " << players.size() << "/"<< maxPlayers << "." << std::endl;
+    //std::cout << "Pending messages " << messageQue.size() << std::endl;
 
-    /* prechod hracskymi prikaymi a vykonavanie*/
+    /* prechod hracskymi prikazmi a vykonavanie*/
     std::list< std::pair< boost::shared_ptr<player>, Command>  >::iterator it;
     it = messageQue.begin();
     while (it != messageQue.end())
     {
+        if( win )
+        {
+            messageQue.erase(it++);
+            continue;
+        }
         Point new_coord = GetNextPosition( it->first );
 
         try
@@ -485,7 +496,6 @@ void Game::RemovePlayerMessage(boost::shared_ptr<player> user)
 int Game::pick_model()
 {
     int offset = (Manager::instance().Random())%player_model.size();
-    std::cout << "offset = " << offset << std::endl;
     auto it = player_model.begin();
     for (; offset != 0; offset--) it++;
 
@@ -522,9 +532,12 @@ void Game::ReturnKeys( boost::shared_ptr<player> user )
         {
             if ( matrix.at(point.first).at(point.second) != Map::WALL )
             {
-                /* position is not gate nor key nor wall*/
+                auto it = IsItem( point.first, point.second, updatePacket.gates );
+                /* position is not CLOSED gate nor key nor wall*/
                 if ( IsItem( point.first, point.second, updatePacket.keys ) == updatePacket.keys.end() &&
-                     IsItem( point.first, point.second, updatePacket.gates ) == updatePacket.gates.end() )
+                     ( IsItem( point.first, point.second, updatePacket.gates ) == updatePacket.gates.end() ||
+                       it->optionFlag == false )
+                    )
                 {
                     updatePacket.keys.push_back( MapItemsInfo( point.first, point.second, true ) );
                     user->keys -= 1;
@@ -569,7 +582,7 @@ void Game::UpdateAI()
         /*test this new coord*/
         try
         {
-            if ( matrix.at(new_coord.first).at(new_coord.second) == Map::PLAYER_BASE )
+            if ( matrix.at(new_coord.first).at(new_coord.second) == Map::PLAYER_BASE && !win)
             {
                 // kill player
                 /* find out who */
@@ -578,6 +591,8 @@ void Game::UpdateAI()
                     if( user->x == int(new_coord.first) && user->y == int(new_coord.second) )
                     {
                         /* kill this player */
+                        std::string message = std::string("New Player with id ") + std::to_string(user->GetIndex()) + std::string(" was killed.");
+                        SendTextToAll(message);
                         user->alive = false;
                         matrix[new_coord.first][new_coord.second] = Map::GUARD_BASE;
                         matrix[guard.x][guard.y] = Map::GRASS;
@@ -604,6 +619,7 @@ void Game::UpdateAI()
             else if ( matrix.at(new_coord.first).at(new_coord.second) != Map::WALL &&
                       matrix.at(new_coord.first).at(new_coord.second) != Map::GATE &&
                       matrix.at(new_coord.first).at(new_coord.second) != Map::GUARD_BASE &&
+                      matrix.at(new_coord.first).at(new_coord.second) != Map::FINISH &&
                       guard.steps > 0 )
             {
                 //do move

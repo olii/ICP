@@ -33,7 +33,7 @@ uint32_t player::index = 0;
 player::player(boost::asio::io_service& io_service): socket_(io_service)
 {
     index_ = index++;
-    cout << "Player [" << index_ << "] constructed." << endl;
+    //cout << "Player [" << index_ << "] constructed." << endl;
 }
 
 
@@ -43,13 +43,13 @@ player::~player()
     socket_.cancel(ignored);
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored);
     socket_.close(ignored);
-    cout << "Player [" << index_ << "] destructed." << endl;
+    //cout << "Player [" << index_ << "] destructed." << endl;
 }
 
 
 void player::start()
 {
-    cout << "Player [" << index_ << "] starting with IP = " << socket_.remote_endpoint().address().to_string() << endl;
+    //cout << "Player [" << index_ << "] starting with IP = " << socket_.remote_endpoint().address().to_string() << endl;
 
     /* POSLE HELLO PACKET */
 
@@ -63,7 +63,7 @@ void player::start()
 
 void player::ErrorShutdown()
 {
-    cout << "Player [" << index_ << "] entered ErrorShutdown()." << endl;
+    //cout << "Player [" << index_ << "] entered ErrorShutdown()." << endl;
 
     if (shutdown) return;
     shutdown = true;
@@ -112,13 +112,13 @@ void player::ErrorMessage(std::string str)
 
     if (ec)
     {
-        cout << "Player [" << index_ << "] player::ErrorMessage error=" << ec << endl;
+        //cout << "Player [" << index_ << "] player::ErrorMessage error=" << ec << endl;
         ErrorShutdown();
         return;
     }
     else
     {
-        cout << "Player [" << index_ << "] error message sent: " << str << endl;
+        //cout << "Player [" << index_ << "] error message sent: " << str << endl;
     }
 }
 
@@ -181,7 +181,7 @@ void player::listen( const boost::system::error_code& error )
 {
     if ( error )
     {
-        cout << "Player [" << index_ << "] player::listen error=" << error << endl;
+        //cout << "Player [" << index_ << "] player::listen error=" << error << endl;
         ErrorShutdown();
         return;
     }
@@ -202,7 +202,7 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
 
     if ( error || bytes_transferred != packetHeader::header_size )
     {
-        cout << "Player [" << index_ << "] player::listen error=" << error << endl;
+        //cout << "Player [" << index_ << "] player::listen error=" << error << endl;
         ErrorShutdown();
         return;
     }
@@ -230,7 +230,7 @@ void player::handle_header(const boost::system::error_code& error, std::size_t b
                 ErrorShutdown();
                 return;
             }
-            cout << "Player [" << index_ << "] requested server list, proceeding." << endl;
+            //cout << "Player [" << index_ << "] requested server list, proceeding." << endl;
             SendServerList();
             break;
         }
@@ -284,7 +284,7 @@ void player::HandleCommand(const boost::system::error_code &error, std::size_t b
 {
     if ( error || bytes_transferred != inheader[1] )
     {
-        cout << "Player [" << index_ << "] player::HandleCommand error=" << error << endl;
+        //cout << "Player [" << index_ << "] player::HandleCommand error=" << error << endl;
         ErrorShutdown();
         return;
     }
@@ -396,7 +396,7 @@ void player::HandleCreateServer(const boost::system::error_code &error, std::siz
 {
     if ( error || bytes_transferred != inheader[1] )
     {
-        cout << "Player [" << index_ << "] player::HandleCreateServer error=" << error << endl;
+        //cout << "Player [" << index_ << "] player::HandleCreateServer error=" << error << endl;
         ErrorShutdown();
         return;
     }
@@ -418,7 +418,7 @@ void player::HandleCreateServer(const boost::system::error_code &error, std::siz
         return;
     }
     game = new_game;
-    cout << "Player [" << index_ << "] created game "<< game->GetIndex() << endl;
+    //cout << "Player [" << index_ << "] created game "<< game->GetIndex() << endl;
 
 
     do_read();
@@ -462,7 +462,7 @@ void player::handle_write(const boost::system::error_code& error)
 {
     if (error)
     {
-        cout << "Player [" << index_ << "] player::listen error=" << error << endl;
+        //cout << "Player [" << index_ << "] player::listen error=" << error << endl;
         ErrorShutdown();
         return;
 

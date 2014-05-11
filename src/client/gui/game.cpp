@@ -50,7 +50,7 @@ Game::Game(QWidget *parent, int StackedWidget) :
     ModelManager::GetInstance().RegisterModel(3, ModelManager::PlayerModel);
     ModelManager::GetInstance().RegisterModel(4, ModelManager::PlayerModel);
     ModelManager::GetInstance().RegisterModel(5, ModelManager::PlayerModel);
-    ModelManager::GetInstance().RegisterModel(6, ModelManager::GuardModel);
+    ModelManager::GetInstance().RegisterModel(6, ModelManager::PlayerModel);
     ModelManager::GetInstance().RegisterModel(7, ModelManager::GuardModel);
     ModelManager::GetInstance().RegisterModel(8, ModelManager::GuardModel);
     ModelManager::GetInstance().RegisterModel(9, ModelManager::GuardModel);
@@ -631,6 +631,16 @@ void Game::gameLoop()
                             positions_changed = true;
                         }
                         animate((*it), item);
+                        /* pri centrovani na hraca je potrebne animovat pohlad */
+                        if ((*it)->id == connection->GetId() && ui->checkBox->isChecked())
+                        {
+                            QPropertyAnimation* anim1 = new QPropertyAnimation(this, "center");
+                            anim1->setDuration(GetTimer());
+                            anim1->setStartValue(0);
+                            anim1->setEndValue(10);
+                            anim1->setEasingCurve(QEasingCurve::Linear);
+                            animacie.addAnimation(anim1);
+                        }
 
                         (*it)->x = item.x; // nastavim nove pozicie do objektov
                         (*it)->y = item.y; // pouziju sa pri dalsom update
@@ -642,17 +652,6 @@ void Game::gameLoop()
                     {
                         ui->checkBox->setCheckState(Qt::Unchecked);
                         ui->checkBox->setCheckable(false);
-                    }
-
-                    /* pri centrovani na hraca je potrebne animovat pohlad */
-                    if ((*it)->id == connection->GetId() && ui->checkBox->isChecked())
-                    {
-                        QPropertyAnimation* anim1 = new QPropertyAnimation(this, "center");
-                        anim1->setDuration(GetTimer());
-                        anim1->setStartValue(0);
-                        anim1->setEndValue(10);
-                        anim1->setEasingCurve(QEasingCurve::Linear);
-                        animacie.addAnimation(anim1);
                     }
 
                     pomoc.push_back(*it); // vlozim do zoznamu dokoncenych
@@ -931,6 +930,7 @@ void Game::on_checkBox_toggled(bool checked)
 {
     if (checked)
     {
+        setCenter(0);
         ui->graphicsView_3->setDragMode(QGraphicsView::NoDrag);
     }
     else

@@ -206,8 +206,6 @@
     </item>
    </layout>
    <zorder>stackedWidget</zorder>
-   <zorder>verticalSpacer</zorder>
-   <zorder>verticalSpacer_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

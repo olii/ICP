@@ -20,6 +20,7 @@
 #include <QHeaderView>
 #include <QScrollBar>
 #include <QTime>
+#include <QThread>
 
 /**
  * Konstruktor noveho widgetu
@@ -131,9 +132,13 @@ Game::~Game()
     animacie.clear();
 
     Informator::getInstance()->GetConnection()->Leave();
-    if( Informator::getInstance()->GetConnection()->Ready() )
+    for( int i = 0; i<20; ++i )
     {
-        Informator::getInstance()->GetConnection()->ReadPacket();
+        if( Informator::getInstance()->GetConnection()->Ready() )
+        {
+            Informator::getInstance()->GetConnection()->ReadPacket();
+        }
+        QThread::msleep(25);
     }
 
     //Informator::getInstance()->Disconnect();
@@ -252,7 +257,10 @@ void Game::setCenter(int x)
     auto it = std::find_if( players.begin(),players.end(),
               [&]( GPixmapItem* ptr ){ return ptr->id == Informator::getInstance()->GetConnection()->GetId() ;} );
     //(if it.optinonflag = 1)
-    ui->graphicsView_3->centerOn((*it));
+    if( it != players.end())
+    {
+        ui->graphicsView_3->centerOn((*it));
+    }
 }
 
 int Game::getCenter()
@@ -375,9 +383,13 @@ void Game::on_pushButton_5_clicked()
     gametimer.stop();
     animacie.clear();
     Informator::getInstance()->GetConnection()->Leave();
-    if( Informator::getInstance()->GetConnection()->Ready() )
+    for( int i = 0; i<20; ++i )
     {
-        Informator::getInstance()->GetConnection()->ReadPacket();
+        if( Informator::getInstance()->GetConnection()->Ready() )
+        {
+            Informator::getInstance()->GetConnection()->ReadPacket();
+        }
+        QThread::msleep(25);
     }
     inGame = false;
     scene.clear();

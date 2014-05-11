@@ -1,0 +1,32 @@
+/**
+ * @mainpage
+ * <h3>Autori:</h3>
+		<p>Stefan Marticek xmarti62
+		<br />
+		Oliver Nemcek xnemce03</p>
+		
+		
+		<br />
+		<br />
+	<h3>Projekt ICP 2014 Bludiste</h3>
+	
+	<p>
+	Client-server hra<br />
+	<br />
+	Ovladanie hry GUI:<br />
+	Textove prikazy a klavesove skratky: <br />
+	GO = W<br />
+	STOP = S<br />
+	LEFT = A<br />
+	RIGHT = D<br />
+	TAKE = E<br />
+	OPEN = Q<br />
+	<br />
+	Rezim celej obrazovky sa prepina dvojklikom na herny plan.<br />
+	Priblizenie alebo oddialenie sa realizuje kolieckom na mysi.<br />
+	Funkcia "center on" vystreduje hraca na na obrazovke.<br />
+	</p>
+	<p>
+	Ovladanie terminaloveho klienta je implementovane len pomocou klavesovych skratiek
+	</p>
+ */

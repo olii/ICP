@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/models">
         <file>resources/kluc.png</file>
-        <file>resources/stena.jpg</file>
+        <file>resources/stena.png</file>
         <file>resources/podlaha.png</file>
         <file>resources/hraci/0_0.png</file>
         <file>resources/hraci/0_1.png</file>
@@ -15,7 +15,7 @@
         <file>resources/hraci/2_1.png</file>
         <file>resources/hraci/2_2.png</file>
         <file>resources/hraci/2_3.png</file>
-        <file>resources/gate.jpg</file>
+        <file>resources/gate.png</file>
         <file>resources/door_opened.png</file>
         <file>resources/hraci/3_0.png</file>
         <file>resources/hraci/3_1.png</file>

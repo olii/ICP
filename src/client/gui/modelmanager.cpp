@@ -2,8 +2,8 @@
 
 ModelManager::ModelManager() :
     floor(":/models/resources/podlaha.png"),
-    wall(":/models/resources/stena.jpg"),
-    door_closed(":/models/resources/gate.jpg"),
+    wall(":/models/resources/stena.png"),
+    door_closed(":/models/resources/gate.png"),
     door_opened(":/models/resources/door_opened.png"),
     key(":/models/resources/kluc.png"),
     finish(":/models/resources/treasure.png")

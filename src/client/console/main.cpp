@@ -1,3 +1,11 @@
+/**
+ * @file main.cpp
+ *
+ * @brief implementacia konzoloveho klienta
+ *
+ * @author Oliver Nemcek
+ */
+
 #include <cstdlib>
 #include <deque>
 #include <vector>
@@ -36,10 +44,18 @@ void Exit_fix_terminal(void)
     changemode(0);
 }
 
+
+/**
+ * @brief main
+ *        je tu obsiahnuta kompletna implementacia vzhladom na demonstracne ucely, na ktore mala tato cast zadania sluzit
+ * @param argc
+ * @param argv
+ * @return
+ */
 int main(int argc, char* argv[])
 {
-    atexit (Exit_fix_terminal);
-    changemode(-1);
+    atexit (Exit_fix_terminal); ///< na konci sa opat na stavi cin na blokujuci
+    changemode(-1); ///< ulozi sa aktualny stav terminalu
     try
     {
         if (argc != 3)
@@ -48,7 +64,7 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        Network connection(argv[1], argv[2]);
+        Network connection(argv[1], argv[2]);   ///< vytvorenie pripojenia na server
         connection.Connect();
 
 
@@ -67,23 +83,35 @@ int main(int argc, char* argv[])
             int gameid;
             cout << "Enter game id to join: ";
             cin >> gameid;
-            connection.Join(gameid);
+            connection.Join(gameid);    ///< pripojenie sa k uz existujucej hre
         }
         else
         {
             ServerInfoList list = connection.GetMapList();
-            for( auto x: list.list )
+            for( auto x: list.list )    ///< zobrazia sa nazvy vsetkych dostupnych map
             {
                 cout << "#- " << x.map << " -#" <<endl;
             }
             std::string mapname ;
+            std::string gamename ;
+            int players_max;
+            float delay;
+            int timeout;
+            cout << "Enter game name: ";
+            cin >> gamename;
+            cout << "Enter maximum number of players: ";
+            cin >> players_max;
             cout << "Enter map name: ";
             cin >> mapname;
-            connection.CreateServer("SERVER0", 2, mapname, 0.5, 0);
+            cout << "Enter delay (0.5-5.0 s): ";
+            cin >> delay;
+            cout << "Enter amount of time to wait for start of the game in seconds: ";
+            cin >> timeout;
+            connection.CreateServer(gamename, players_max, mapname, delay, timeout); ///< vytvorenie novej hry
         }
 
 
-        /* server posle staticku mapu */
+        /** server posle staticku mapu */
         connection.ReadPacket();
         if (connection.GetHeaderType() != packetHeader::STATIC_MAP )
         {
@@ -91,7 +119,7 @@ int main(int argc, char* argv[])
         }
         cout << "packet received" << endl;
 
-        Map map = connection.GetPacketContent<Map>();
+        Map map = connection.GetPacketContent<Map>();   ///< obsah danej mapy sa upravy tak aby sa vykreslilo iba pozadie - inicializacia pohladu
         Map::MapMatrix background = map.items;
         for (auto &row: background)
         {
@@ -109,16 +137,16 @@ int main(int argc, char* argv[])
             }
         }
 
-        MapUpdate updatepacket = connection.GetMapUpdate();
+        MapUpdate updatepacket = connection.GetMapUpdate(); ///< server zaslal prvy update
         Map::MapMatrix screenbuffer = background;
-        for ( auto item: updatepacket.players )
+        for ( auto item: updatepacket.players ) ///< v terminalovej verzii je kazdy hrac rovnaky
         {
             screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE );
         }
 
 
 
-        for (auto &row: screenbuffer)
+        for (auto &row: screenbuffer)   ///< vykreslenie prveho update
         {
             for (auto &column: row)
             {
@@ -149,11 +177,11 @@ int main(int argc, char* argv[])
         }
 
         //cin.ignore(INT_MAX);
-        changemode(1);
+        changemode(1);  ///< nastavenie cin na neblokujuci
         /* MAIN GAME LOOP */
         while ( !cin.eof() )
         {
-            if ( kbhit() )
+            if ( kbhit() )  ///< reakcia na stisk klavesy
             {
                 char c;
                 cin.get(c);
@@ -200,14 +228,14 @@ int main(int argc, char* argv[])
                     connection.SendCommand(c);
                 }
             }
-            if ( connection.Ready() )
+            if ( connection.Ready() )   ///< reakcia na packet, ktory prave dorazil
             {
                 connection.ReadPacket();
                 if( connection.GetHeaderType() == packetHeader::COMMAND )
                 {
                     Command c = connection.GetPacketContent<Command>();
 
-                    if( c.GetType() == Command::TEXT )
+                    if( c.GetType() == Command::TEXT )  ///< ak mi sietou neprisiel novy obsah mapy tak prisla textova sprava, ktoru vypisem
                     {
                         cout << c.GetText() << endl;
                     }
@@ -216,12 +244,12 @@ int main(int argc, char* argv[])
                         cout << "Received packet different than text or gameupdate";
                     }
                 }
-                else if ( connection.GetHeaderType() == packetHeader::GAME_UPDATE  )
+                else if ( connection.GetHeaderType() == packetHeader::GAME_UPDATE  ) ///< server zaslal game update
                 {
                     MapUpdate updatepacket = connection.GetPacketContent<MapUpdate>();
                     Map::MapMatrix screenbuffer = background;
-                    screenbuffer[updatepacket.treasure.x][updatepacket.treasure.y] = Map::FINISH;
-                    for ( auto item: updatepacket.gates )
+                    screenbuffer[updatepacket.treasure.x][updatepacket.treasure.y] = Map::FINISH;   ///< vlozenie pokladu
+                    for ( auto item: updatepacket.gates )   ///< vlozenie bran
                     {
                         if ( item.optionFlag == true )
                         {
@@ -232,20 +260,20 @@ int main(int argc, char* argv[])
                             screenbuffer[item.x][item.y] = Map::GATE_OPEN;
                         }
                     }
-                    for ( auto item: updatepacket.keys )
+                    for ( auto item: updatepacket.keys )    ///< vlozenie klucov
                     {
                         if ( item.optionFlag == true )
                         {
                             screenbuffer[item.x][item.y] = Map::KEY;
                         }
                     }
-                    for ( auto item: updatepacket.guards )
+                    for ( auto item: updatepacket.guards ) ///< vlozenie strazcov
                     {
                         screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::GUARD_BASE);
                     }
-                    for ( auto item: updatepacket.players )
+                    for ( auto item: updatepacket.players ) ///< vlozenie hracov
                     {
-                        if(item.optionFlag == true )
+                        if(item.optionFlag == true )    ///< vykresluju sa len hraci, ktori su zivi
                         {
                             screenbuffer[item.x][item.y] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE + item.dir);
                         }
@@ -253,7 +281,7 @@ int main(int argc, char* argv[])
 
 
 
-                    for (auto &row: screenbuffer)
+                    for (auto &row: screenbuffer)   ///< vykreslenie celej hry
                     {
                         for (auto &column: row)
                         {
@@ -306,21 +334,24 @@ int main(int argc, char* argv[])
                 }
             }
 
-            std::this_thread::sleep_for (std::chrono::milliseconds(10));
+            std::this_thread::sleep_for (std::chrono::milliseconds(10));    ///< klient sa uspi na 10 misec. a znova kontroluje obsah socketu
         }
-        changemode(0);
+        changemode(0);  ///< nastavi sa cin na povodny blokujuci
     }
     catch (std::exception& e)
     {
-        changemode(0);
+        changemode(0); ///< nastavi sa cin na povodny blokujuci
         std::cerr << "Exception: " << e.what() << "\n";
     }
-    changemode(0);
+    changemode(0); ///< nastavi sa cin na povodny blokujuci
     return 0;
 }
 
 
-
+/**
+ * @brief changemode
+ * @param dir logicky parameter, ktory riedi ci sa ma cin nastavenie ulozit, ci sa nastavi / nenastavi ako blokujuci
+ */
 void changemode(int dir)
 {
   static struct termios oldt, newt, tmp;
@@ -340,6 +371,11 @@ void changemode(int dir)
     tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
 }
 
+/**
+ * @brief kbhit
+ *        riedi obsluhu udalosti stisk klavesy
+ * @return vrati nenulovu hodotu pri stisku klavesy
+ */
 int kbhit (void)
 {
   struct timeval tv;

@@ -1,4 +1,11 @@
-
+/**
+ * @file modelmanager.h
+ *
+ * @brief hlavickovy subor - deklaracia triedy ModelManager (navrhovy vzor singleton)
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+ 
 #ifndef MODELMANAGER_H
 #define MODELMANAGER_H
 
@@ -8,6 +15,10 @@
 #include <utility>
 #include <QPixmap>
 
+/**
+ * @brief The ModelManager class
+ *        singleton pre obsluhu textur resp. modelov postav v hre
+ */
 class ModelManager
 {
 public:

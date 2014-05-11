@@ -1,14 +1,16 @@
 /**
- * @file mainwindow.cpp
+ * @file modelmanager.cpp
  *
- * @brief vedlajsi modul pre implementaciu grafickeho rozhrania aplikacie
- *        implementacia klikatelnej casti pripajania sa na server
+ * @brief ulozenie textur do pamate a ich sprava, ktoru riadi objekt - navrhovy vzor singleton 
  * @author Stefan Marticek
  * @author Oliver Nemcek
  */
 
 #include "modelmanager.h"
-
+/**
+ * @brief ModelManager::ModelManager
+ *        pri vytvarani objektu sa automaticky skonstruuju zakladne textury, ktorych vzhlad nie je nutne na zaklade logiky hry menit
+ */
 ModelManager::ModelManager() :
     floor(":/models/resources/podlaha.png"),
     wall(":/models/resources/stena.png"),
@@ -20,6 +22,11 @@ ModelManager::ModelManager() :
 
 }
 
+/**
+ * @brief ModelManager::RegisterModel
+ * @param id id registrovaneho modelu
+ * @param type urcuje ci sa jedna o hraca alebo strazcu
+ */
 void ModelManager::RegisterModel(int id, ModelType type)
 {
         std::map < std::pair<int, playerDirection>, QPixmap > *data;
@@ -38,6 +45,13 @@ void ModelManager::RegisterModel(int id, ModelType type)
         }
 }
 
+/**
+ * @brief ModelManager::GetModel
+ * @param id id registrovaneho modelu
+ * @param dir smer, ktorym je hrac otoceny
+ * @param type urcuje ci sa jedna o hraca alebo strazcu
+ * @return referencia na objekt QPixmap, ktory predstavuje danu texturu v pamati
+ */
 QPixmap &ModelManager::GetModel( int id, playerDirection dir, ModelType type )
 {
         if( type == PlayerModel )

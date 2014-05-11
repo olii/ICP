@@ -1,3 +1,10 @@
+/**
+ * @file informator.h
+ *
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #ifndef INFORMATOR_H
 #define INFORMATOR_H
 
@@ -9,6 +16,10 @@
 
 const int TEXTURE_SIZE = 512;
 
+/**
+ * @brief The Informator class
+ *        navrhovy vzor Singleton predstavuje zapuzdrenie komunikacie so sietou
+ */
 class Informator
 {
     public:
@@ -34,6 +45,7 @@ class Informator
 
 };
 
+///< funkcia pre zobrazenie okna s hlasenim chyby
 void ShowError(QString title, QString text, QMessageBox::Icon icon);
 
 #endif // INFORMATOR_H

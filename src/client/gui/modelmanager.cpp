@@ -1,3 +1,12 @@
+/**
+ * @file mainwindow.cpp
+ *
+ * @brief vedlajsi modul pre implementaciu grafickeho rozhrania aplikacie
+ *        implementacia klikatelnej casti pripajania sa na server
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #include "modelmanager.h"
 
 ModelManager::ModelManager() :

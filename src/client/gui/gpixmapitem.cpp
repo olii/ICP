@@ -52,6 +52,7 @@ void GPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     }
     else
     {
+        //cenrovanie vykreslenia na stred - pouzite pri animaciach
         painter->drawPixmap(QRectF(QPointF((TEXTURE_SIZE/2)-(m_size/2),(TEXTURE_SIZE/2)-(m_size/2)),QSizeF(m_size,m_size)).toRect(), pixmap());
     }
 }

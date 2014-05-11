@@ -34,6 +34,13 @@ Network * Informator::GetConnection()
     return connection;
 }
 
+/**
+ * @brief ShowError
+ *        zobrazi okno s chybovou spravou
+ * @param title nadpis okna
+ * @param text chybova sprava
+ * @param icon
+ */
 void ShowError(QString title, QString text, QMessageBox::Icon icon)
 {
     QMessageBox Error;

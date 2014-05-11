@@ -101,6 +101,10 @@ void MainWindow::on_pushButton_4_clicked()
     new_game->show();
 }
 
+/**
+ * @brief MainWindow::on_pushButton_6_clicked
+ *        po kliknuti na dane tlacidlo sa zobrazia strucne informacie o hre
+ */
 void MainWindow::on_pushButton_6_clicked()
 {
     QMessageBox msgBox;

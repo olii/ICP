@@ -1,9 +1,20 @@
+/**
+ * @file gpixmapitem.h
+ * 
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #ifndef GPIXMAPITEM_H
 #define GPIXMAPITEM_H
 
 #include <QGraphicsPixmapItem>
 #include <QObject>
 
+/**
+ * @brief The GPixmapItem class
+ *        trieda reprezentujuca vkladane textury v pamati a v scene
+ */
 class GPixmapItem : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT

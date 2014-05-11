@@ -1,3 +1,10 @@
+/**
+ * @file mainwindow.h
+ *
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -7,7 +14,10 @@
 namespace Ui {
 class MainWindow;
 }
-
+/**
+ * @brief The MainWindow class
+ *        trieda predstavujuca hlavne okno, ktore sa zobrazi po spusteni aplikacie
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

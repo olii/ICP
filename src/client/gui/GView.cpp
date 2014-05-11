@@ -1,3 +1,12 @@
+/**
+ * @file GView.cpp
+ *
+ * @brief vedlajsi modul pre implementaciu grafickeho rozhrania aplikacie
+ *        implementacia metod vlastnej grafickej entity odvodenej z QGraphicsView
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #include "GView.h"
 #include <QDebug>
 #include <QMouseEvent>
@@ -9,14 +18,6 @@
 #include <QScrollBar>
 #include "gpixmapitem.h"
 #include "boost/serialization/serialization.hpp"
-/**
- * @file GView.cpp
- *
- * @brief vedlajsi modul pre implementaciu grafickeho rozhrania aplikacie
- *        implementacia metod vlastnej grafickej entity odvodenej z QGraphicsView
- * @author Stefan Marticek
- * @author Oliver Nemcek
- */
 
 #include "mainwindow.h"
 #include <QApplication>
@@ -49,17 +50,29 @@ void GView::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
+/**
+ * @brief GView::savescale
+ *        ulozi aktualnu hodnotu z matice do premennej
+ */
 void GView::savescale()
 {
     scale11 = matrix().m11();
 }
 
-
+/**
+ * @brief GView::getscale
+ * @return vrati predtym ulozenu hodnotu z matice
+ */
 qreal GView::getscale()
 {
     return scale11;
 }
 
+/**
+ * @brief GView::wheelEvent
+ *        metoda riadi priblizovanie a oddialovanie sceny v hre
+ * @param event
+ */
 void GView::wheelEvent(QWheelEvent* event) {
 
     //qDebug() << "zoom event";

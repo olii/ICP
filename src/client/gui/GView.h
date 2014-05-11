@@ -1,10 +1,11 @@
-#ifndef GVIEW_H
 /**
  * @file GView.h
  *
  * @author Stefan Marticek
  * @author Oliver Nemcek
  */
+
+#ifndef GVIEW_H
 
 #define GVIEW_H
 
@@ -14,7 +15,10 @@
 #include <QKeyEvent>
 #include "gpixmapitem.h"
 
-
+/**
+ * @brief The GView class
+ *        predstavuje Graficky prvok okna, ktory sluzi na vykreslenie sceny obsahujuci pridane sucasti
+ */
 class GView : public QGraphicsView
 {
     Q_OBJECT

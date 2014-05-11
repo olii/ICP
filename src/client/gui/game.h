@@ -1,3 +1,10 @@
+/**
+ * @file game.h
+ * 
+ * @author Stefan Marticek
+ * @author Oliver Nemcek
+ */
+
 #ifndef GAME_H
 #define GAME_H
 
@@ -16,7 +23,11 @@
 namespace Ui {
 class Game;
 }
-
+/**
+ * @brief The Game class
+ *        zdedena trieda z QWidget, predstavuje samostatne okno pre hru
+ * 
+ */
 class Game : public QWidget
 {
     Q_OBJECT

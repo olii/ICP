@@ -95,7 +95,6 @@ Game::Game(QWidget *parent, int StackedWidget) :
         ui->tableWidget_2->setHorizontalHeaderLabels(m_TableHeader);
         ui->tableWidget_2->verticalHeader()->setVisible(false);
         ui->tableWidget_2->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        //ui->tableWidget_2->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
         ui->tableWidget_2->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tableWidget_2->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -145,16 +144,28 @@ Game::~Game()
     delete ui;
 }
 
+/**
+ * @brief Game::GetTimer
+ * @return hodnota delay pre danu hru
+ */
 int Game::GetTimer()
 {
     return timer;
 }
-
+/**
+ * @brief Game::SetTimer
+ * @param miliseconds nastavi hodnotu delay danej hry v milisekundach
+ */
 void Game::SetTimer(int miliseconds)
 {
     timer = miliseconds;
 }
 
+/**
+ * @brief Game::resizeEvent
+ *        vola spravnu obsluhu zmeny velkosti okna podla platna daneho okna, ktore je aktualne zobrazene
+ * @param event
+ */
 void Game::resizeEvent(QResizeEvent* event)
 {
     Q_UNUSED(event);
@@ -220,7 +231,7 @@ void Game::keyPressEvent(QKeyEvent *event)
 }
 
 /**
- * Funkcia pre prisposobenie zobrazenia obsahu sceny rozmerom grafickeho prvku pre jej vykreslenie
+ * @brief metoda pre prisposobenie zobrazenia obsahu sceny rozmerom grafickeho prvku pre jej vykreslenie
  * @param view pohlad pre ktory sa ma upravit scena
  */
 void Game::resize(GView * view)
@@ -251,6 +262,11 @@ void Game::resize(GView * view)
                 static_cast<int> (view->verticalScrollBar()->maximum() * vertical_scrolbar_ratio + 0.5));
 }
 
+/**
+ * @brief Game::setCenter
+ *        metoda upravena pre volanie v animaciach, centruje pohlad na hraca
+ * @param x
+ */
 void Game::setCenter(int x)
 {
     fake_int = x;
@@ -263,6 +279,10 @@ void Game::setCenter(int x)
     }
 }
 
+/**
+ * @brief Game::getCenter
+ *        metoda nutna pre vytvorenie animacie centrovania pohladu na hraca
+ */
 int Game::getCenter()
 {
     return fake_int;
@@ -776,6 +796,10 @@ void Game::animate(GPixmapItem * & old_item, MapItemsInfo & new_item)
     animacie.addAnimation(hore_dole);
 }
 
+/**
+ * @brief Game::AfterJoinTask
+ *        metoda, ktora pripoji hraca do hry, a vytvori zakladne zobrazenie mapy
+ */
 void Game::AfterJoinTask()
 {
     Network *connection = Informator::getInstance()->GetConnection();
@@ -905,6 +929,10 @@ void Game::closeEvent(QCloseEvent *event)
     gametimer.stop();
 }
 
+/**
+ * @brief Game::on_lineEdit_2_editingFinished
+ *        zadavanie textovych prikazov pre ovladanie hracov
+ */
 void Game::on_lineEdit_2_editingFinished()
 {
     Command c;
@@ -940,6 +968,11 @@ void Game::on_lineEdit_2_editingFinished()
     ui->lineEdit_2->setText("");
 }
 
+/**
+ * @brief Game::on_checkBox_toggled
+ *        povolenie / zakaz posuvania pohladu pomocou mysi na zaklade toho ci je zapnute centrovanie pohladu na hraca
+ * @param checked
+ */
 void Game::on_checkBox_toggled(bool checked)
 {
     if (checked)

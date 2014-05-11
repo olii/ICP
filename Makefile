@@ -1,4 +1,4 @@
-.PHONY=build_binaries doxygen clean clean-build blackhole pack 
+.PHONY=build_binaries doxygen clean clean-build blackhole pack run
 
 all: build_binaries
 
@@ -26,6 +26,10 @@ pack:
 	tar --exclude=src/tools -czf xmarti62.tar.gz xmarti62
 	rm -rf ./xmarti62
 	
+run:
+	./bludiste2014-server 55555 &
+	sleep 1
+	./bludiste2014
 	
 
 clean: 

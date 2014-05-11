@@ -1,3 +1,11 @@
+/** @file serverinfo.cpp
+* @author Oliver Nemček
+* @brief Informacie o serveri, ktore su prenasane po sieti
+*
+* implementacie tried ktore sa pouzivaju ako kontajnery pre prenos po sieti
+* prevazne zakladne serializacne konstruktory
+*/
+
 #include "serverinfo.h"
 
 #include <string>

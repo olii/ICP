@@ -1,3 +1,11 @@
+/** @file main.cpp
+* @author Oliver Nemček
+* @brief Subor s funkciou main
+*
+* Primarny spustaci subor
+* zavadza boost::asio a implemetuje reakciu na signal ctrl+c
+*/
+
 #include "server.h"
 #include <boost/asio.hpp>
 #include <iostream>
@@ -11,7 +19,11 @@ using std::endl;
 
 boost::asio::io_service io_service;
 
-
+/**
+ * @brief Funkcia sa snazi co najbezpecnejsim sposobom ukoncit server v pripade nudze
+ *
+ * zastavuje celu sietovu vrstvu programu a uvolnuje pamat
+ */
 static void sighandler(int signum) 
 { 
     (void)signum;

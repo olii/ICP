@@ -1,3 +1,12 @@
+/** @file command.h
+* @author Oliver Nemček
+* @brief Definicia typu paketu Command
+*
+* Serializovany typ spravy Command
+* pouziva sa prevazne pre rychle prenesenie sprav zo servera
+* ktore nevyzaduju zlozite parametre
+*/
+
 #ifndef COMMAND_H
 #define COMMAND_H
 

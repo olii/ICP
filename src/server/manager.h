@@ -1,3 +1,13 @@
+/** @file manager.h
+* @author Oliver Nemček
+* @brief Singleton, ktory sa stara o vytvorene hry
+*
+* Manager ma v sebe ulozene prave rozohrane hry, spravuje nacitane mapy
+* implemetuje primitivnu spravu hier
+*
+*/
+
+
 #ifndef MANAGER_H
 #define MANAGER_H
 

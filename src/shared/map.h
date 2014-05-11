@@ -1,3 +1,12 @@
+/** @file map.h
+* @author Oliver Nemček
+* @brief Herna mapa v hre
+*
+* definuje triedy mapy, polozky na mape a skutpinu poloziek na mape
+* vsetky triedy podoporuju serializaciu, a niektore sa vyuzivaju ako obsah paketu
+* niektore su vyuzivane len ako kontajner nad std konjatnermi aby sa ulahcila serializacia
+*/
+
 #ifndef MAP_H
 #define MAP_H
 

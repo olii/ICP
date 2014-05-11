@@ -1,3 +1,11 @@
+/** @file global.h
+* @author Oliver Nemček
+* @brief Obecne konstanty ktore sa pouzivaju v celom projekte
+*
+*
+*/
+
+
 #ifndef GLOBAL_H
 #define GLOBAL_H
 

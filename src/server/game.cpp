@@ -676,6 +676,30 @@ void Game::UpdateAI()
                         guard.y = new_coord.second;
                         ReturnKeys(user);
                         RemovePlayerMessage(user);
+
+
+                        /* find player spawn */
+                        Point clientSpawn = std::make_pair( 9999,9999 );
+                        for( auto spawnPos: playerSpawn)
+                        {
+                            if ( matrix[spawnPos.first][spawnPos.second] == Map::GRASS )
+                            {
+                                clientSpawn = spawnPos;
+                                break;
+                            }
+                        }
+                        if( clientSpawn.first != 9999 && clientSpawn.second != 9999 )
+                        {
+                            user->x = clientSpawn.first;
+                            user->y = clientSpawn.second;
+                            user->alive = true;
+                            user->keys = 0;
+                            user->dir = static_cast<playerDirection>(Manager::instance().Random() % 4); // nahodne smer
+                            user->encounteredKey = 0;
+                            matrix[clientSpawn.first][clientSpawn.second] = static_cast<Map::StaticTypes>( Map::PLAYER_BASE );
+                        }
+
+
                         /* test if all players are dead */
                         auto it = find_if(players.begin(), players.end(), [] ( boost::shared_ptr<player> ptr ) { return ptr->alive == true; } );
                         if( it == players.end() )
